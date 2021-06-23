@@ -1,0 +1,2 @@
+-- require "eo"
+-- vim.cmd [[luafile /Users/eo/.config/nvim/lua/e0/init.lua]]

@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =3
+let g:netrw_dirhist_3='/Users/eo/tf-quant-finance/tf_quant_finance/black_scholes'
+let g:netrw_dirhist_2='/Users/eo/tf-quant-finance/tf_quant_finance'
+let g:netrw_dirhist_1='/Users/eo/tf-quant-finance'
+let g:netrw_dirhist_0='/Users/eo/tf-quant-finance/third_party'
+let g:netrw_dirhist_9='/Users/eo/tf-quant-finance/third_party/sobol_data'
+let g:netrw_dirhist_8='/Users/eo/tf-quant-finance/third_party'
+let g:netrw_dirhist_7='/Users/eo/tf-quant-finance'
+let g:netrw_dirhist_6='/Users/eo'
+let g:netrw_dirhist_5='/Users/eo/xfonts'
+let g:netrw_dirhist_4='/Users/eo'

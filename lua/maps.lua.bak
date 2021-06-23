@@ -1,0 +1,89 @@
+local map = require('config/utils').map
+-- local map = utils.map
+local nosilent = { noremap = true }
+-- packer sync baby
+map('n', '<leader>ps', '<cmd>PackerSync<cr>')
+
+map('n', '<leader>ts', ':split term://less +F /')
+-- delete without yanking
+map('n', '<leader>d', '"_d')
+map('v', '<leader>d', '"_d')
+map('n', '<leader>z', '<cmd>bp<CR>')
+map('n', '<leader>x', '<cmd>bn<CR>')
+-- map('n', '<leader>c', '<cmd>bd<CR>')
+
+map('n', '<', '<<')
+map('v', '<', '<<')
+map('n', '>', '>>')
+map('v', '>', '>>')
+
+map("v", "J", ":m '>+1<CR>gv=gv")
+map("v", "K", ":m '<-1<CR>gv=gv")
+
+-- map('n', '<leader>z', '<cmd>bp<cr>', silent)
+-- map('n', '<leader>x', '<cmd>bn<cr>', silent)
+map('n', '<leader>cx', '<cmd>bd<cr>', silent)
+
+-- A little Emacs in my Neovim
+-- map('n', '<c-x><c-s>', '<cmd>w<cr>', silent)
+-- map('i', '<c-x><c-s>', '<esc><cmd>w<cr>a', silent)
+
+-- Esc in the terminal
+map('t', 'jj', [[<C-\><C-n>]])
+map('i', 'jk', [[<esc>]])
+map('i', 'kj', [[<esc>]])
+
+map('n', ';', ':')
+map('v', ';', ':')
+
+map('i', '<CR>', "pumvisible() ? '<c-y>' : '<c-g>u<CR>'", {expr = true})
+
+-- Yank to clipboard
+map({'n', 'v'}, 'y+', '<cmd>set opfunc=util#clipboard_yank<cr>g@', silent)
+
+-- Window movement
+map('n', '<C-h>', '<C-w>h')
+map('n', '<C-j>', '<C-w>j')
+map('n', '<C-k>', '<C-w>k')
+map('n', '<C-l>', '<C-w>l')
+-- replace currently selected text with default register without yanking it
+-- map('v', 'p', '"_dP', opts)
+
+-- Remap Y to yank to end of line instead of aliasing yy
+map('n', 'Y', 'y$')
+map('v', 'Y', 'y$')
+
+map('n', '[t', '<cmd>BufferLineCyclePrev<CR>')
+map('n', ']t', '<cmd>BufferLineCycleNext<CR>')
+
+-- quickfix list navigation yay
+-- map('n', '<c-n>', '<cmd>cnext<cr>', opts)
+-- map('n', '<c-p>', '<cmd>cprev<cr>', opts)
+
+-- turn off search highlighting after finishing a search (nohlsearch)
+map('n', '<leader>hl', '<cmd>noh<CR>')
+map('n', ';', ':')
+map('x', ';', ':')
+
+
+local maps = {}
+maps.source_filetype = function()
+  local buf = vim.api.nvim_get_current_buf()                  -- get reference to current buf
+  local ft = vim.api.nvim_buf_get_option(buf, 'filetype')     -- get filetype of buffer
+  if ft == 'lua' then
+    vim.cmd('luafile %')
+    print('lua file reloaded!')
+  elseif ft == 'vim' then
+    vim.cmd('source %')
+    print('vim file sourced!')
+  else
+    print('Not a lua or vim file')
+  end
+end
+
+-- File Init: Open Neovim init.lua config in new tab
+map('n', '<leader>ee', [[:tabnew +tcd\ ~/.config/nvim ~/.config/nvim/init.lua<cr>]])
+-- Source Here: Reload current buffer if it is a vim or lua file
+map('n', '<leader>re', "<cmd>lua require('maps').source_filetype()<cr>")
+
+return maps

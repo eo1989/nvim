@@ -1,0 +1,17 @@
+require'nvim-treesitter.configs'.setup({
+    ensure_installed = "maintained",
+    indent = {enable = true},
+    highlight = {
+        enable = true,
+        use_languagetree = true,
+    },
+    rainbow = {enable = true,
+        extended_mode = true
+    },
+    query_linter = {
+        enable = false,
+        use_virtual_text = false,
+        -- lint_events = {"BufWrite", "CursorHold"},
+    },
+  }
+)

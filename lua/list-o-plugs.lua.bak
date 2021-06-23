@@ -1,0 +1,453 @@
+
+
+    use {"scrooloose/nerdcommenter",
+        setup= function()
+           vim.g.NERDSpaceDelims=1
+           vim.g.NERDDefaultAlign='left'
+           vim.g.NERDTrimtrailingWhiteSpace=1
+           vim.g.NERDCompactSexyComs=0
+           vim.g.NERDCustomDelimiters = {json = {left = '//'}}
+          end,
+           opt = false
+      }
+
+    use {
+      'neovim/nvim-lspconfig'
+--        {
+--        'ojroques/nvim-lspfuzzy', 
+--          config = 'require"lspfuzzy".setup{}'
+--        },
+          }
+     use {
+          "ray-x/lsp_signature.nvim",
+          config = function()
+            require'lsp_signature'.on_attach {
+           --   bind = true,
+           --   doc_lines = 10,
+           --   hint_enable = true,
+           --   hint_prefix = "🐼 ", -- Panda for parameter
+           --   hint_scheme = "String",
+           --   handler_opts = {
+           --     border = "shadow"
+           --     },
+            }
+          end
+          }
+
+
+    use "tjdevries/astronauta.nvim"
+    use "tjdevries/nlua.nvim"
+
+    use {
+      'kosayoda/nvim-lightbulb',
+      config = function()
+        vim.cmd [[autocmd CursorHold,CursorHoldI * lua require('nvim-lightbulb').update_lightbulb()]]
+        disable = false
+      end
+      }
+    use {
+      "glepnir/lspsaga.nvim",
+				config = function()
+					require("lspsaga").init_lsp_saga()
+				end,
+          requires = {
+            'hrsh7th/nvim-compe'
+          }
+      }
+
+    use {
+      "tzachar/compe-tabnine",
+        run = "./install.sh"
+      }
+
+    use {
+      'hrsh7th/vim-vsnip',
+        requires = {'rafamadriz/friendly-snippets'}
+      } 
+
+    use {"onsails/lspkind-nvim"}
+    use {"nvim-lua/lsp-status.nvim"}
+    use {"nvim-lua/lsp_extensions.nvim"}
+    use {
+      "folke/trouble.nvim",
+         config = function() 
+          require("trouble").setup{
+						auto_preview = false,
+						auto_fold = true,
+					}
+         end}
+      
+        -- config =  "require('lsp_signature').on_attach()"}
+
+
+
+
+    use {
+      "simrat39/symbols-outline.nvim",
+      config = function()
+        require('symbols-outline').setup{
+          highlight_hovered_item = true,
+          show_guides = true,
+        }
+      end
+    }
+
+--    use {
+--      'mfussenegger/nvim-lint', 
+ --     config = function()
+ --           require('lint').linters_by_ft = {
+ --               sh = {'shellcheck'},
+ --               html = {'tidy'},
+ --               php = {'psalm'},
+ --               python = {'pylint'}
+ --               },
+ --           vim.api.nvim_exec([[
+ --           augroup nvim_lint
+ --               autocmd!
+ --              autocmd BufWeitePost * lua require('lint').try_lint()
+ --           augroup END
+ --           ]], false),
+ --           vim.cmd("command! TryLint lua require('lint').try_lint()")
+ --       end
+ --   }
+
+ --   use {
+ --     'hrsh7th/nvim-compe', 
+ --     config = [[require('config.compe')]], 
+ --     event = 'InsertEnter *'
+ --   }
+
+ --   use {
+ --     'hrsh7th/vim-vsnip', 
+ --   requires = {
+ --     "rafamadriz/friendly-snippets"
+ --     },
+ --     config = [[require('config.vsnip')]], 
+ --     event = 'InsertEnter *'
+ --   }
+ --
+    use{
+      "nvim-treesitter/nvim-treesitter",
+        run = ':TSUpdate',
+        requires = "p00f/nvim-ts-rainbow"
+--       config = function()
+--         require('config.tr3sit-combine-with-other-cfg')
+--       end,
+    }
+    use {
+      "nvim-treesitter/playground",
+        requires = 'nvim-treesitter/nvim-treesitter',
+        cmd = ":TSPlaygroundToggle"
+  }
+    use {
+      "andymass/vim-matchup",
+        setup = function()
+        end,
+    }
+  -- config = [[require('config.matchup')]]
+
+    use {
+      'machakann/vim-sandwich',
+      run = "runtime macros/sandwich/keymap/surround.vim"
+    }
+
+
+    use "kana/vim-textobj-user"
+    use "kana/vim-textobj-line"
+
+    use {
+      "GCBallesteros/jupytext.vim",
+      requires = {"GCBAllesteros/vim-textobj-hydrogen"}
+      }
+
+		use {"mhinz/vim-startify"}
+
+    use {"junegunn/fzf", run = function()
+				vim.fn["fzf#install"]()
+      end
+    }
+		use {"junegunn/fzf.vim"} 
+	  use {"junegunn/vader.vim"}
+
+    use {
+      'junegunn/vim-easy-align',
+      opt = false
+    }
+    use {
+      'mhartington/formatter.nvim', 
+      cmd = {'FormatWrite', 'Format'},
+      opt = false
+  --      config = function()
+--        require('config.format')
+--      end,
+    }
+		use {"pwntester/octo.nvim"}
+		
+      
+
+    use {
+			"antoinemadec/FixCursorHold.nvim",
+			run = function()
+				vim.g.cursorhold_updatime = 1000
+			end
+		}
+
+    use "tpope/vim-surround"
+    use "tpope/vim-scriptease"
+    use "tpope/vim-repeat"
+
+		use "dstein64/vim-startuptime"
+
+    use "jreybert/vimagit"
+    use "rhysd/git-messenger.vim"
+    use "lambdalisue/vim-gista"
+    -- use 'airblade/vim-gitgutter' -- possibly check out gitsigns
+    use {
+      "lewis6991/gitsigns.nvim",
+      requires = "nvim-lua/plenary.nvim",
+--      config = function() require('config.gitsigns') end
+    }
+
+    use "psliwka/vim-smoothie"
+    use "myusuf3/numbers.vim"
+    use {"jdhao/better-escape.vim"}
+--     config = function() require('better-escape') end
+    use({
+			"rrethy/vim-hexokinase", 
+          run = "make hexokinase",
+          setup = function()
+            vim.g.hexokinase_highlighters = {'foregroundfull'}
+            vim.g.hexokindase_optInPatters = {
+            'full_hex', 
+            'triple_hex',
+            'rgb',
+            'rgba',
+            'hsl',
+            'hsla',
+            'color_names',
+          }
+          end,
+          cmd = "HexokinaseToggle"
+        })
+
+    use {
+      'norcalli/nvim-colorizer.lua',
+       config = function()
+        require('colorizer').setup({
+          '*',
+          '!packer',
+        })
+      end
+      }
+
+    use {
+      "kevinhwang91/nvim-bqf",
+--      config = [[require('bqf')]]
+    }
+
+    use "mbbill/undotree"
+    use {
+      "nvim-telescope/telescope.nvim",
+        requires = {
+          "nvim-lua/popup.nvim",
+          "nvim-lua/plenary.nvim"
+      }
+--     config = function()
+--      require('config.telescope_setup')
+--     end,
+    }
+
+    use {
+      "nvim-telescope/telescope-fzf-native.nvim",
+        run = "make"
+--        requires = {'nvim-telescope/telescope.nvim'},
+--        config = function()
+--          require('telescope').load_extension('fzf')
+--        end,
+      }
+
+--     use {
+--     'numirias/semshi',
+--     ft = 'py',
+--     run = ":UpdateRemotePlugins"
+--   }
+    use {
+      "christianchiarulli/nvcode-color-schemes.vim",
+--      config = function()
+--        vim.cmd[[
+--        let g.nvcode_termcolors=256
+--        ]]
+--      end
+    }
+  --  use {
+  --    "szw/vim-maximizer"
+  --  }
+    use "RishabhRD/popfix"
+    use "RishabhRD/nvim-lsputils"
+    use "RishabhRD/nvim-cheat.sh"
+	  use "dbeniamine/cheat.sh-vim"
+--    use "rhysd/devdocs.vim"
+--    compare vim-devdocs to rhysd/devdocs.vim
+    use "romainl/vim-devdocs"
+    use "rizzatti/dash.vim"
+    use "tyru/open-browser.vim"
+    use "tyru/open-browser-github.vim"
+
+    use "michaeljsmith/vim-indent-object"
+
+    use "google/vim-searchindex"
+    use 'haringsrob/nvim_context_vt'
+    use "easymotion/vim-easymotion"
+    --  se 'jiangmiao/auto-pairs'
+    use "Raimondi/delimitMate"
+    use "sbdchd/neoformat"
+    use "haya14busa/is.vim"
+    use "rafcamlet/nvim-luapad"
+    use 'folke/lua-dev.nvim'
+    use "voldikss/vim-skylight"
+--    use "voldikss/fzf-floaterm"
+    use {
+        'tpope/vim-fugitive', 
+--        cmd = {'Git', 'Gstatus', 'Gblame', 'Gpush', 'Gpull'}, 
+        requires = 'tpope/vim-rhubarb'
+      }
+    use {'TimUntersberger/neogit'}
+       -- {
+       --   'lewis6991/gitsigns.nvim',
+       --   requires = {{'nvim-lua/plenary.nvim'},{'tpope/rhubarb'}},
+       --   config = [[require('config.gitsigns')]],
+       --   event = 'BufEnter'
+       -- }, 
+    use {
+      'hkupty/iron.nvim',
+        setup = [[vim.g.iron_map_defaults = 0]],
+--        config = [[require('config.iron')]],
+        cmd = {'IronRepl', 'IronSend', 'IronReplHere'}
+      }
+
+    -- Pretty symbols
+    use 'kyazdani42/nvim-web-devicons'
+
+    -- Terminal
+    use 'voldikss/vim-floaterm'
+
+    use "JuliaEditorSupport/julia-vim"
+    use "neovimhaskell/haskell-vim"
+		use "elzr/vim-json"
+		use "cespare/vim-toml"
+		use "justinmk/vim-syntax-extra"
+
+		use {
+			"iamcco/markdown-preview.nvim",
+				run = "cd app && yarn install",
+        ft = {"markdown"}
+			}
+
+    use {
+			"michaelb/sniprun", 
+			run = "bash ./install.sh"
+		}
+
+    -- use 'jpalardy/vim-slime'
+
+
+--    use {
+--      "kuator/totally-not-hacked-pylance.nvim", 
+--        run = "bash ./install.sh"
+--      }
+    -- statusline
+    use {
+      'hoob3rt/lualine.nvim'
+--      config = function()
+--        require('lualine').setup {
+--          options = {
+--        --    theme = 'dracula',
+--            section_separators = {'', ''},
+--            component_separators = {'', ''},
+--                },
+--                sections = {
+--                    lualine_c = {
+--                        {'filename', path = 1},
+--                        {'diagnostics', sources = {'nvim_lsp'}},
+--                    },
+--                },
+--            }
+--        end
+      }
+    -- use {
+    --     'hrsh7th/nvim-compe',
+    --     requires = 
+    --     {"tzachar/compe-tabnine",
+    --       run = "./install.sh"}
+    --   }
+  --        config = function()
+--            require('config.compe')
+            --.setup {
+                --source = {
+                    --path = true,
+                    --buffer = true,
+                    --nvim_lsp = true,
+                    --nvim_lua = true,
+                    --vsnip = true,
+                --},
+                --preselect = 'always',
+                --autocomplete = true,
+                --documentation = true
+            --}
+--        end
+--        event = 'InsertEnter',
+		use {
+				'sudormrfbin/cheatsheet.nvim',
+					requires = {
+						{'nvim-telescope/telescope.nvim'},
+						{'nvim-lua/popup.nvim'},
+						{'nvim-lua/plenary.nvim'},
+					}
+				}
+
+		use {"L3MON4D3/LuaSnip",
+				config = function()
+					vim.g.snippets = "luasnip"
+				end
+      }
+
+    -- use {
+    --     'hrsh7th/vim-vsnip',
+    --       requires = 'rafamadriz/friendly-snippets'
+    --     } 
+  --  use {
+  --    {"famiu/feline.nvim"},
+  --    requires = {"kyazdani42/nvim-web-devicons"},
+  --    config = function() require('feline') end
+  --  }
+    -- use {'romgrk/barbar.nvim'}
+    use {
+      "akinsho/nvim-bufferline.lua"
+--      config =
+--        [[require('config.buf_line')]]
+    }
+
+    use {
+      "kyazdani42/nvim-tree.lua",
+				 requires = {
+					 "kyazdani42/nvim-web-devicons"
+				 }
+    }
+
+    use {
+      "lukas-reineke/indent-blankline.nvim",
+      branch = "lua",
+      enable = true
+--      config = [[require('config.indentline')]]
+    }
+
+    use "kassio/neoterm"
+    use "nanotee/luv-vimdocs"
+    use "bfredl/nvim-luadev"
+    use "bfredl/luarefvim"
+		use "milisims/nvim-luaref"
+    use "folke/lsp-colors.nvim"
+    use "pechorin/any-jump.vim"
+		-- use "monaqa/dial.nvim"
+		-- use "tamago324/lir.nvim"
+

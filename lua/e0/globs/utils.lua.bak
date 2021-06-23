@@ -1,0 +1,21 @@
+-- Create a unique identification string readable by human for the given
+-- function. This create a string of the following format:
+--        "<source>_<name>_<linedefined>"
+---@param f function
+---@return string
+---@see https://www.lua.org/pil/23.1.html
+-- local function create_id(f)
+--   local info = debug.getinfo(f, "Sn")
+--   if not info then
+--     return
+--   end
+--   local source = info.source
+--   :gsub(".*/lua/(.*)", "%1") -- path from "../lua/" module
+--   :gsub("/", ".") -- replace "/" with "."
+--   :gsub("%.lua$", "") -- remove the ".lua" extension
+--   local name = info.name and "_" .. info.name or ""
+--   local linedefined = "_" .. info.linedefined
+--   return string.format("%s%s%s", source, name, linedefined)
+-- end
+
+

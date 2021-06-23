@@ -1,0 +1,502 @@
+-- local cmd, fn, g, lsp = vim.cmd, vim.fn, vim.g, vim.lsp
+-- local vim.api.nvim_buf_set_keymap = vim.api.nvim_set_keymap
+-- local execute = vim.api.nvim_exec
+-- local uv = vim.loop
+require('lsp.settings')
+require('lsp.trouble')
+require('lsp.events')
+
+local LspConf = require('lspconfig')
+
+-- require("lsp-colors").setup({
+--   Error = "#db4b4b",
+--   Warning = "#e0af68",
+--   Information = "#0db9d7",
+--   Hint = "#10B981"
+-- })
+-- require('lspsetup.handler-tools')
+-- require('lspsetup.lsp-handler')
+
+vim.lsp.set_log_level("debug")
+vim.g.vimsyn_embed = 'l' -- highlight lua code inside vim files
+vim.o.completeopt = "menuone,noselect"
+
+require'nvim-treesitter.configs'.setup({
+    ensure_installed = "all",
+    indent = {enable = false},
+    highlight = {
+        enable = true,
+        use_languagetree = true,
+    },
+    rainbow = {enable = true,
+        extended_mode = true
+    },
+    query_linter = {
+        enable = false,
+        use_virtual_text = false,
+        -- lint_events = {"BufWrite", "CursorHold"},
+    },
+    pairs = {
+        enable = false,
+    --     highlight_pair_events = {"CursorMoved", "CursorMovedI"},
+    --     highlight_self = true,
+    --     goto_right_end = false,
+    --     fallback_cmd_normal = "call matchit#Match_wrapper('', 1, 'n')",
+        }
+    }
+)
+
+-- lspsaga
+local saga = require('lspsaga')
+saga.init_lsp_saga({
+    use_saga_diagnostic_sign = false,
+    code_action_prompt = {enable = false},
+    finder_action_keys = {
+        open = 'o',
+        vsplit = 'v',
+        split = 's',
+        quit = 'q',
+        scroll_down = 'j',
+        scroll_up = 'k'
+    },
+    border_style = 2
+    })
+
+
+function _G.reload_lsp()
+    vim.lsp.stop_client(vim.lsp.get_active_clients())
+    vim.cmd [[edit]]
+end
+
+function _G.open_lsp_log()
+    local path = vim.lsp.get_log_path()
+    vim.cmd("edit" .. path)
+end
+
+vim.cmd('command! -nargs=0 LspLog call v:lua.open_lsp_log()')
+vim.cmd('command! -nargs=0 LspReload call v:lua.reload_lsp()')
+
+-- require('nlspsettings').seetup()
+-- require'navigator'.setup()
+
+function _G.show_documentation()
+    if vim.fn.index({"vim", "help"}, vim.bo.filetype) >= 0 then
+        vim.cmd("h " .. vim.fn.expand("<cword>"))
+    else
+        vim.cmd('lua require("lspsaga.hover").render_hover_doc()')
+    end
+end
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+capabilities.textDocument.completion.completionItem.resolveSupport =
+    {properties = {'documentation', 'detail', 'additionalTextEdits'}}
+
+
+
+local custom_attach = function(client, buf)
+    -- local saga = require'lspsaga'
+    print("LSP started.");
+    require('lspkind').init()
+    require('lsp_signature').on_attach({
+        bind = true,
+        handler_opts = {border = "single"},
+        doc_lines = 5,
+        hint_enable = true,
+        hint_prefix = "🐼 ",
+        hint_scheme = "String",
+        decorator = {"***", "***"}
+    })
+    capabilities = capabilities
+    vim.api.nvim_buf_set_option(buf, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+    local opts = {noremap = true, silent = false}
+
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'gh', ':Lspsaga lsp_finder<CR>', opts)
+    -- vim.api.nvim_buf_set_keymap(buf, 'n', '<leader>ca', ':Lspsaga code_action<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'K', ':Lspsaga hover_doc<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', '<C-f>',
+        "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(1)<CR>", opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', '<C-b>',
+        "<cmd>lua require('lspsaga.action').smart_scroll_with_saga(-1)<CR>",
+        opts)
+    -- vim.api.nvim_buf_set_keymap(buf, 'n', '<C-s>', ':Lspsaga signature_help<CR>', opts)
+    -- vim.api.nvim_buf_set_keymap(buf, 'n', '<C-s>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+    -- vim.api.nvim_buf_set_keymap(buf, 'n', '<Leader>gi', ':Lspsaga implement<CR>', opts)
+    -- vim.api.nvim_buf_set_keymap(buf, 'n', '<leader>sd' '')
+
+    vim.api.nvim_buf_set_keymap(buf, 'n', ']d', '<Cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', '[d', '<Cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'gl',
+        '<Cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'td', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+    -- vim.api.nvim_buf_set_keymap(buf, 'n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', '<C-s>', '<cmd>lua vim.lsp.buf.signature_help()<CR>',
+        opts)
+
+    vim.api.nvim_buf_set_keymap(buf, 'n', '<leader>wl',
+        '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>',
+        opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'bq', '<cmd>lua ', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(buf, 'n', '<leader>q', '<cmd>lua vim.lsp.diagnostic.set_loclist()<CR>',
+        opts)
+
+    -- vim.api.nvim_exec('autocmd CursorHold <buffer> <cmd>lua vim.lsp.diagnostic.show_line_diagnostics()')
+
+    function LspConfig_init()
+        vim.api.nvim_exec([[
+            augroup lsp_lightbulb
+            autocmd!
+            autocmd CursorHold,CursorHoldI * lua require('nvim-lightbulb').update_lightbulb()
+            augroup END
+          ]], false)
+    end
+
+    -- if client.resolved_capabilities.document_formatting() then
+    --     vim.api.nvim_buf_set_keymap(buf, "n", "<leader>f", "<cmd>lua vim.lsp.buf.formatting()<CR>")
+    -- end
+
+    -- if client.resolved_capabilities.document_range_formatting() then
+    --     vim.api.nvim_buf_set_keymap(buf, "v", "<leader>f", "<cmd>lua vim.lsp.buf.buf_formatting()<CR>")
+    -- end
+
+    -- hi LspReferenceRead cterm=bold ctermbg=red guibg=LightYellow
+    -- hi LspReferenceText cterm=bold ctermbg=red guibg=LightYellow
+    -- hi LspReferenceWrite cterm=bold ctermbg=red guibg=LightYellow
+    if client.resolved_capabilities.document_highlight then
+        vim.api.nvim_exec([[
+        augroup lsp_document_highlight
+            autocmd! * <buffer>
+            autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+            autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
+            autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+        augroup END
+        ]],
+        false)
+    end
+
+    vim.lsp.handlers['textDocument/codeAction'] =
+    require'lsputil.codeAction'.code_action_handler;
+    vim.lsp.handlers['textDocument/references'] =
+    require'lsputil.locations'.references_handler;
+    vim.lsp.handlers['textDocument/definition'] =
+    require'lsputil.locations'.definition_handler;
+    vim.lsp.handlers['textDocument/declaration'] =
+    require'lsputil.locations'.declaration_handler;
+    vim.lsp.handlers['textDocument/typeDefinition'] =
+    require'lsputil.locations'.typeDefinition_handler;
+    vim.lsp.handlers['textDocument/implementation'] =
+    require'lsputil.locations'.implemention_handler;
+    vim.lsp.handlers['textDocument/documentSymbol'] =
+    require'lsputil.symbols'.document_handler;
+    vim.lsp.handlers['workspace/symbol'] =
+    require'lsputil.symbols'.document_handler;
+
+    vim.lsp.handlers["textDocument/publishDiagnostics"] =
+        vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+            underline = true,
+            -- virtual_text = true,
+            virtual_text = {spacing = 4, prefix = " "},
+            signs = true,
+            -- Dont update in insert
+            update_in_insert = false,
+        }
+    )
+end
+
+-- finder_definition_icon = ' ',
+--   finder_reference_icon = ' ',
+
+-- vim.lsp.protocol.CompletionItemKind = {
+--     "   (Text) ", "   (Method)", "   (Function)",
+--     "   (Constructor)", " ﴲ  (Field)", "[] (Variable)", "   (Class)",
+--     " ﰮ  (Interface)", "   (Module)", " 襁 (Property)", "   (Unit)",
+--     "   (Value)", " 練 (Enum)", "   (Keyword)", "   (Snippet)",
+--     "   (Color)", "   (File)", "   (Reference)", "   (Folder)",
+--     "   (EnumMember)", " ﲀ  (Constant)", " ﳤ  (Struct)", "   (Event)",
+--     "   (Operator)", "   (TypeParameter)"
+-- }
+
+vim.fn.sign_define("LspDiagnosticsSignError", {
+    texthl = "LspDiagnosticsSignError",
+    text = "✗",
+    numhl = "LspDiagnosticsSignError"
+})
+
+vim.fn.sign_define("LspDiagnosticsSignWarning", {
+    texthl = "LspDiagnosticsSignWarning",
+    text = "",
+    numhl = "LspDiagnosticsSignWarning"
+})
+
+vim.fn.sign_define("LspDiagnosticsSignHint", {
+    texthl = "LspDiagnosticsSignHint",
+    text = "",
+    numhl = "LspDiagnosticsSignHint"
+})
+
+vim.fn.sign_define("LspDiagnosticsSignInformation", {
+    texthl = "LspDiagnosticsSignInformation",
+    text = "",
+    numhl = "LspDiagnosticsSignInformation"
+})
+
+local srvers = {
+    "pyright",
+    -- "jedi-language-server",
+    "bashls",
+    "rust-analyzer",
+    "vimls",
+    "jsonls",
+    "julials",
+    "gopls"
+    -- "pyls"
+}
+
+for _, lspp in ipairs(srvers) do
+    print(lspp)
+    LspConf[lspp].setup {
+        on_attach = custom_attach,
+        -- require("lsp_signature").on_attach(),
+        capabilities = capabilities,
+    }
+end
+
+
+-- require 'pylance'
+-- LspConf.pylance.setup {
+--     on_attach = custom_attach,
+--     capabilities = capabilities,
+--     cmd = {
+--         'node',
+--         '/Users/eo/.vscode/extensions/ms-python.vscode-pylance-2021.4.4-pre.1/dist/server.bundle.js',
+--         '--stdio'
+--     },
+--     settings = {
+--         python = {
+--             analysis = {
+--                 typeCheckingMode = "basic",
+--                 completeFunctionParens = true
+--             }
+--         }
+--     }
+-- }
+-- Lua {{
+local system_name
+
+if vim.fn.has("mac") == 1 then
+    system_name = "macOS"
+elseif vim.fn.has("unix") == 1 then
+    system_name = "Linux"
+elseif vim.fn.has('win32') == 1 then
+    system_name = "Windows"
+else
+    print("Unsupported system for sumneko")
+end
+
+DATA_PATH = vim.fn.stdpath('data')
+CACHE_PATH = vim.fn.stdpath('cache')
+
+local sumneko_root_path = DATA_PATH ..
+                              "/lspinstall/lua/sumneko-lua/extension/server"
+-- '/lspconfig/sumneko_lua/lua-language-server'
+local sumneko_binary = sumneko_root_path .. '/bin/' .. system_name ..
+                           '/lua-language-server'
+
+LspConf.sumneko_lua.setup {
+    require'lsp_signature'.on_attach(),
+    cmd = {sumneko_binary, '-E', sumneko_root_path .. '/main.lua'},
+    on_attach = custom_attach,
+    capabilities = {
+        textDocument = {completion = {completionItem = {snippetSupport = true}}}
+    },
+    settings = {
+        Lua = {
+            runtime = {version = "LuaJIT", path = vim.split(package.path, ';')},
+            completion = {keywordSnippet = "Replace", callSnippet = "Replace"},
+            diagnostics = {
+                enable = true,
+                globals = {
+                    'vim', 'describe', 'it', 'before_each', 'after_each', 'use'
+                }
+            },
+            workspace = {
+                library = {
+                    [vim.fn.expand('$VIMRUNTIME/lua')] = true,
+                    [vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
+                    [vim.fn.stdpath("config") .. '/lua'] = true,
+                    ["/usr/local/include/lua5.1"] = true,
+                    ["/usr/local/include/lua"] = true,
+                },
+                preloadFileSize = 2000
+            },
+            telemetry = {enable = false}
+        }
+    }
+}
+-- {{{
+-- LspConf.vimls.setup {
+--     require'lsp_signature'.on_attach(),
+--     on_attach = custom_attach,
+--     capabilities = capabilities
+-- }
+-- LspConf.rust_analyzer.setup({
+--     require'lsp_signature'.on_attach(),
+--     on_attach = custom_attach,
+--     capabilities = {
+--         textDocument = {completion = {completionItem = {snippetSupport = true}}}
+--      }
+--   }
+-- )
+
+-- function _FMT()
+--     if ft() == "json" then
+--         vim.lsp.buf.range_formatting({}, {0, 0}, {vim.fn.lines("$"), 0})
+--         return
+--     end
+--     vim.lsp.buf.formatting_sync(nil, 800)
+-- end
+
+-- LspConf.jsonls.setup {
+--     require'lsp_signature'.on_attach(),
+--     on_attach = custom_attach,
+--     capabilities = capabilities,
+--     cmd = {'vscode-json-languageserver', '--stdio'},
+--     settings = {json = require'nlspsettings.jsonls'.get_default_schemas()}
+-- }
+
+-- lsp.rust_analyzer.setup {on_attach = custom_attach}
+-- lsp.jedi_language_server.setup {on_attach = custom_attach}
+-- lsp.bashls.setup {on_attach = custom_attach}
+-- lsp.julials.setup {on_attach = custom_attach}
+-- -- lsp.pyright.setup{on_attach = custom_attach}
+-- lsp.pyls.setup({
+--     on_attach = custom_attach,
+--     settings = {
+--         pyls = {
+--             plugins = {
+--                 jedi_completion = {enabled = false},
+--                 jedi_definition = {enabled = true},
+--                 yapf = {enabled = true},
+--                 rope_completion = {enabled = true},
+--                 pylint = {enabled = false},
+--                 pyflakes = {enabled = false},
+--                 pydocstyle = {enabled = false},
+--                 preload = {enabled = true},
+--                 mccabe = {enabled = false},
+--                 jedi_symbols = {enabled = true},
+--                 jedi_references = {enabled = true}
+--             }
+--         }
+--     }
+-- })
+
+-- gopls
+-- LspConf.gopls.setup {
+--     [> require'lsp_signature'.on_attach(), <]
+--     on_attach = custom_attach,
+--     capabilities = capabilities
+-- }
+
+-- -- tsserver
+-- lsp.tsserver.setup {
+--     -- require'lsp_signature'.on_attach(),
+--     on_attach = custom_attach,
+--     capabilities = capabilities
+-- }}}
+
+-- -- -- -- -- -- Compe Completion -- -- -- -- -- --- -- -- --
+require'compe'.setup {
+    enabled = true,
+    autocomplete = true,
+    preselect = 'enable',
+    documentation = true,
+    source = {
+        path = true,
+        buffer = true,
+        nvim_lsp = {enable = true},
+        nvim_lua = {enable = true, filetype = 'lua'},
+        -- path = {menu = " "},
+        -- buffer = {menu = "  "},
+        -- nvim_lsp = {enable = true, priority = 10001, menu = " "},
+        -- nvim_lua = {enable = true, menu = "  "},
+        vsnip = true
+    }
+}
+
+local function t(str)
+    return vim.api.nvim_replace_termcodes(str, true, true, true)
+end
+
+local function check_back_space()
+    local col = vim.fn.col('.') - 1
+    if col == 0 or vim.fn.getline('.'):sub(col, col):match('%s') then
+        return true
+    else
+        return false
+    end
+end
+
+-- Use (s-)tab to:
+--- move to prev/next item in completion menuone
+--- jump to prev/next snippet's placeholder
+_G.tab_complete = function()
+    if vim.fn.pumvisible() == 1 then
+        return t "<C-n>"
+    elseif vim.fn.call("vsnip#available", {1}) == 1 then
+        return t "<Plug>(vsnip-expand-or-jump)"
+    elseif check_back_space() then
+        return t "<Tab>"
+    else
+        return vim.fn['compe#complete']()
+    end
+end
+_G.s_tab_complete = function()
+    if vim.fn.pumvisible() == 1 then
+        return t "<C-p>"
+    elseif vim.fn.call("vsnip#jumpable", {-1}) == 1 then
+        return t "<Plug>(vsnip-jump-prev)"
+    else
+        return t "<S-Tab>"
+    end
+end
+
+vim.api.nvim_buf_set_keymap(0, 'i', '<Tab>', 'v:lua.tab_complete()', {expr = true})
+vim.api.nvim_buf_set_keymap(0, 's', '<Tab>', 'v:lua.tab_complete()', {expr = true})
+vim.api.nvim_buf_set_keymap(0, 'i', '<S-Tab>', 'v:lua.s_tab_complete()', {expr = true})
+vim.api.nvim_buf_set_keymap(0, 's', '<S-Tab>', 'v:lua.s_tab_complete()', {expr = true})
+
+-- Test
+vim.api.nvim_buf_set_keymap(0, 'i', '<C-Space>', [[compe#complete()]], {expr = true})
+vim.api.nvim_buf_set_keymap(0, 'i', '<CR>', [[compe#confirm({'keys': "\<Plug>delimitMateCR", 'mode': ''})]], {expr = true})
+vim.api.nvim_buf_set_keymap(0, 'i', '<C-f', [[compe#scroll({'delta': +4})]], {expr = true})
+vim.api.nvim_buf_set_keymap(0, 'i', '<C-d', [[compe#scroll({'delta': -4})]], {expr = true})
+vim.cmd [[highlight link CompeDocumentation NormalFloat]]
+-- vim.api.nvim_set_keymap(0, 'n', '<C-l>', '<cmd>noh<CR>')
+
+--events
+-- local function = vim.api.nvim_buf_get_option(0, 'filetype')
+
+-- addEventListener('show diagnostic popup on cursor hold', {'CursorHold <buffer>'}, function()
+--     vim.lsp.diagnostic.show_line_diagnostics({show_header = false})
+-- end)
+
+-- if filetype == 'rust' then
+--     vim.cmd(
+--     [[autocmd BufEnter,BufWritePost <buffer> :lua require('lsp_extension.inlay_hints').request{ ]]
+--         .. [[aligned = true, prefix = " » "]]
+--     .. [[} ]]
+--     )
+-- end
+
+--
+-- section_separators = {'', ''},
+--         component_separators = {'', ''},
+--         icons_enabled = true, { {get_git_info, icon = ''} },
+-- symbols = {error = ' ', warn = ' ', info= ' '},

@@ -1,0 +1,52 @@
+-- local M = {}
+-- local utils = require'lspsetup.utils'
+
+-- M.code_action_callback = function(_, _, result)
+--   if result == nil or vim.tbl_isempty(result) then
+--     print('[code_actions] No code actions available')
+--     return
+--   end
+
+--   local items_by_name = {}
+--   for _, item in ipairs(result) do
+--     items_by_name[item.title] = item
+--   end
+
+--   local opts = vim.fn['fzf#wrap']({
+--     source = vim.tbl_keys(items_by_name),
+--     sink = function() end
+--   })
+
+--   opts.sink = function(item)
+--     utils.execute_action(items_by_name[item])
+--   end
+
+--   vim.fn['fzf#run'](opts)
+-- end
+
+-- return M
+
+-- return function ()
+--     vim.lsp.handlers['textDocument/codeAction'] = require'lsputil.codeAction'.code_action_handler
+--     vim.lsp.handlers['textDocument/references'] = require'lsputil.locations'.references_handler
+--     vim.lsp.handlers['textDocument/definition'] = require'lsputil.locations'.definition_handler
+--     vim.lsp.handlers['textDocument/declaration'] = require'lsputil.locations'.declaration_handler
+--     vim.lsp.handlers['textDocument/typeDefinition'] = require'lsputil.locations'.typeDefinition_handler
+--     vim.lsp.handlers['textDocument/implementation'] = require'lsputil.locations'.implemention_handler
+--     vim.lsp.handlers['textDocument/documentSymbol'] = require'lsputil.symbols'.document_handler
+--     vim.lsp.handlers['workspace/symbol'] = require'lsputil.symbols'.document_handler
+-- end
+
+-- hi("NvimTreeGitNew", {guifg = "#5fd700"})
+-- hi("NvimTreeGitDirty", {guifg = "#ffff00"})
+-- hi("NvimTreeGitRenamed", {guifg = "#ffff00"})
+-- hi("NvimTreeGitMerge", {guifg = "#ff0000"})
+-- hi("NvimTreeGitStaged", {guifg = "#00afff"}-- highlight split separators
+-- hi("VertSplit", {guibg = "none", guifg = "#78dce8"})
+-- hi("StatusLineNC", {guibg = "none", guifg = "#78dce8"})
+-- hi("StatusLine", {guibg = "none", guifg = "none"})
+-- -- custom highlights for fugitive
+-- hi("DiffAdd", {guifg = "#5fd700"})
+-- hi("DiffText", {guifg = "#00afff"})
+-- hi("DiffChange", {guifg = "#ffff00"})
+-- hi("DiffDelete", {guifg = "#ff0000"}))

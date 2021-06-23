@@ -1,0 +1,11 @@
+if has("gui_vimr")
+	VimRSetFontAndSize "FiraCode Nerd Font", 14
+	colorscheme Snazzy
+endif
+if exists('g:GuiLoaded')
+    GuiTabline 0
+    GuiPopupmenu 0
+    GuiLinespace 2
+    Guifont! FiraCode Nerd Font:h12:sb
+endif
+

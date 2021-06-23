@@ -1,0 +1,50 @@
+if exists('g:vscode')
+  source ~/.config/nvim/vscode.vim
+"elseif
+  "if has("gui_vimr")
+  "VimRSetFontAndSize"FiraCodeNerdFont-Retina", 14
+else
+  source ~/.config/nvim/init.lua
+endif
+
+"source $HOME/.config/nvim/nvim.vim
+"source $HOME/.config/nvim/config/general.vim
+"source $HOME/.config/nvim/config/plugin-settings.vim
+"source $HOME/.config/nvim/config/keymaps.vim
+" source $HOME/.config/nvim/config/lsp.vim
+"source $HOME/.config/nvim/config/autocmd.vim
+
+lua << EOF
+--require('init')
+--require('lsp')
+--require('utils')
+EOF
+
+" luafile ~/.config/nvim/lua/init.lua
+" luafile ~/.config/nvim/lua/lualine.lua
+" luafile ~/.config/nvim-backup/nvim/lua/galaxyline/init.lua
+" luafile ~/.config/nvim-backup/nvim/lua/buf_line.lua
+
+" lua require('lua.globals')
+
+function! OpenPluginDocs()
+    let github_path = 'https://github.com/'
+    let quotes_text_regex = '\v([''"])(.{-})\1'
+    let currentline = trim(getline('.'))
+
+    if matchstr(currentline, '^Plug') == ''
+        throw "Current line doesnt match plugin pattern."
+    endif
+
+    let plugin_path = matchstr(currentline, quotes_text_regex)[1:-2]
+    call system('open ' . github_path . plugin_path)
+endfunction
+
+command OpenPluginDocs :call OpenPluginDocs()
+
+" function! ShowHighlightGroups()
+"     let l:s = synID(line('.'), col('.'), 1)
+"         echo synIDattr(l:s, 'name') . ' -> ' . synIDattr(synIDtrans(l:s), 'name')
+" endfun
+
+" nnoremap <leader>hg :call ShowHighlightGroups()<cr>

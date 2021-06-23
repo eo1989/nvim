@@ -1,0 +1,91 @@
+local cmd = vim.cmd
+local g = vim.g
+local o = vim.o
+local wo = vim.wo
+
+g.mapleader = ' '
+g.auto_save = 0
+
+
+cmd [[packadd packer.nvim]]
+
+local execute = vim.api.nvim_command
+local fn = vim.fn
+
+local install_path = fn.stdpath('data')..'/site/packer/opt/packer.nvim'
+
+if fn.empty(fn.glob(install_path)) > 0 then
+    fn.syste({'git', 'clone', 'https://github.com/wbthomason/packer.nvim', install_path})
+    execute 'packadd packer.nvim'
+end
+
+cmd [[autocmd BufWritePost plugins.lua PackerCompile]]
+
+local packer_ok, packer = pcall(require, 'packer')
+
+packer.init {
+  git = {
+    clone_timeout = 360
+  },
+
+  display = {
+    open_cmd = 'topleft 65vnew [packer]',
+    border = {'╭', '─', '╮', '│', '╯', '─', '╰', '│'}
+  }
+}
+
+require('plugins')
+
+cmd 'set mouse=a'
+cmd 'set shiftwidth=4'
+cmd 'set softtabstop=4'
+cmd 'set backspace=indent,eol,start'
+cmd 'set endcoding=UTF-8'
+-- cmd 'set termguicolors'
+o.termguicolors = true
+g.nvcode_termcolors = 256
+
+cmd 'set guifont = Fira Code-Retina'
+cmd 'set path+=**'
+cmd 'set shell=/usr/local/bin/zsh'
+cmd 'set cmdheight=2'
+cmd 'set expandtab'
+cmd 'set ls=2'
+cmd 'set switchbuf=useopen,split'
+cmd 'set updatetime=300'
+cmd 'set timeoutlen = 750'
+cmd 'set gdefault'
+cmd 'set hidden'
+cmd 'set tabstop=4'
+cmd 'set novisualbell'
+cmd 'set noerrorbells'
+cmd 'set smartcase'
+cmd 'set ignorecase'
+cmd 'set nobackup'
+cmd 'set noundofile'
+cmd 'set noswapfile'
+cmd 'set nowritebackup'
+cmd 'set colorcolumn=80'
+cmd 'set signcolumn=auto:4'
+cmd 'set showtabline=2'
+cmd 'set noshowmode'
+cmd 'set shortmess+=c'
+cmd 'set inccommand=split'
+cmd 'set completeopt=menu,noselect'
+cmd 'set foldenable'
+cmd 'set foldmethod=marker'
+cmd 'set wrapmargin=0'
+cmd 'set wildignorecase'
+cmd 'set wildmode=longest,full'
+cmd 'set wildmenu'
+cmd 'set wildoptions=pum'
+
+g.indentLine_enabled = 1
+g.indent_blankline_char = '▌'
+
+-- require('nvim-web-devicons').setup{}
+-- require('symbols-outline').setup {
+--     highlight_hovered_item = true,
+--     show_guides = true,
+--     }
+-- require

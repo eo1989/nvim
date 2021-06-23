@@ -1,0 +1,33 @@
+local util = require 'util'
+
+
+--util.add_autocommand({
+  --name = 'remember_last_file_position',
+  --events = { 'BufReadPost *' },
+  --handler = function ()
+    --local cur_l, end_l = vim.fn.line("'\""), vim.fn.line('$')
+    --if 0 < cur_l and cur_l < end_l and vim.bo.filetype ~= 'commit' then
+      --vim.cmd('normal! g`"')
+    --end
+  --end,
+--})
+
+--util.add_autocommand({
+  --name = 'remove_trailing_spaces',
+  --events = { 'BufWrite *' },
+  --handler = function ()
+    --if vim.api.nvim_eval('!exists("b:noStripWhitespace")') then
+      --vim.cmd('normal mz')
+      --vim.cmd([[%s/\s\+$//ge]])
+      --vim.cmd('normal `z')
+    --end
+  --end,
+--})
+
+--util.add_autocommand({
+  --name = 'highlight_yanked_text',
+  --events = { 'TextYankPost *' },
+  --handler = function ()
+    --require 'vim.highlight'.on_yank()
+  --end,
+--})

@@ -1,0 +1,255 @@
+local lsp = require 'lspconfig'
+-- local util = require 'util'
+
+local saga = require('lspsaga')
+saga.init_lsp_saga({
+    use_saga_diagnostic_sign = false,
+    code_action_prompt = {enable = false},
+    finder_action_keys = {
+        open = 'o',
+        vsplit = 'v',
+        split = 's',
+        quit = 'q',
+        scroll_down = 'j',
+        scroll_up = 'k'
+    },
+    border_style = 2
+    })
+
+
+function _G.reload_lsp()
+    vim.lsp.stop_client(vim.lsp.get_active_clients())
+    vim.cmd [[edit]]
+end
+
+function _G.open_lsp_log()
+    local path = vim.lsp.get_log_path()
+    vim.cmd("edit" .. path)
+end
+
+vim.cmd('command! -nargs=0 LspLog call v:lua.open_lsp_log()')
+vim.cmd('command! -nargs=0 LspReload call v:lua.reload_lsp()')
+
+function _G.show_documentation()
+    if vim.fn.index({"vim", "help"}, vim.bo.filetype) >= 0 then
+        vim.cmd("h " .. vim.fn.expand("<cword>"))
+    else
+        vim.cmd('lua require("lspsaga.hover").render_hover_doc()')
+    end
+end
+
+local custom_capabilities = vim.lsp.protocol.make_client_capabilities()
+custom_capabilities.textDocument.completion.completionItem.snippetSupport = true
+custom_capabilities.textDocument.completion.completionItem.resolveSupport = {
+  properties = {
+    'documentation',
+    'detail',
+    'additionalTextEdits',
+  }
+}
+
+local custom_on_attach = function(client, buf)
+  local map = vim.api.nvim_buf_set_keymap
+  vim.api.nvim_buf_set_option(buf, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  local opts = { noremap = true, silent = false }
+  map(buf, 'n', '[d',					':lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+  map(buf, 'n', ']d',					':lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+  -- map(buf, 'n', 'K', ':lua vim.lsp.buf.hover()<CR>', opts)
+  map(buf, 'n', 'K',					':Lspsaga hover_doc<CR>', opts)
+	map(buf, 'n', 'gh',         ':Lspsaga lsp_finder<CR>', opts)
+  map(buf, 'i', '<C-s>',			'<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  map(buf, 'n', 'gd',					':lua vim.lsp.buf.definition()<CR>', opts)
+  map(buf, 'n', 'gD', ':lua vim.lsp.buf.declaration()<CR>', opts)
+  map(buf, 'n', 'td', ':lua vim.lsp.buf.type_definition()<CR>', opts)
+  map(buf, 'n', 'rn', ':lua vim.lsp.buf.rename()<CR>', opts)
+  map(buf, 'n', 'ca',					':lua vim.lsp.buf.code_action()<CR>', opts)
+  map(buf, 'v', 'ca',					':lua vim.lsp.buf.range_code_action()<CR>', opts)
+  map(buf, 'n', '<Leader>os', ':lua vim.lsp.buf.document_symbol()<CR>', opts)
+  map(buf, 'n', '<Leader>oS', ':lua vim.lsp.buf.workspace_symbol()<CR>', opts)
+  map(buf, 'n', '<Leader>oi', ':lua vim.lsp.buf.implementation()<CR>', opts)
+  map(buf, 'n', '<Leader>or', ':lua vim.lsp.buf.references()<CR>', opts)
+  map(buf, 'n', '<leader>wa', ':lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  map(buf, 'n', '<leader>wr', ':lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  map(buf, 'n', '<leader>wl', ':lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+
+  --if client.resolved_capabilities.document_formatting then
+    --map(buf, 'n', '<Leader>f', ':lua vim.lsp.buf.formatting()<CR>', opts)
+    --util.add_autocommand({
+      --name = 'lsp_auto_format',
+      --events = {'BufWritePre *' },
+      --handler = function()
+        --vim.lsp.buf.formatting_sync(nil, 1000)
+      --end
+    --})
+  --end
+
+  --if client.resolved_capabilities.document_range_formatting then
+    --map(buf, 'v', '<Leader>f', ':lua vim.lsp.buf.range_formatting()<CR>', opts)
+  --end
+
+	-- autocmd CursorHoldI <buffer> lua vim.lsp.buf.document_highlight()
+  if client.resolved_capabilities.document_highlight then
+    vim.api.nvim_exec([[
+        augroup lsp_document_highlight
+            autocmd! * <buffer>
+            autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+            autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+        augroup END
+        ]], false)
+  end
+
+	--function LspConfig_init()
+			--vim.api.nvim_exec([[
+					--augroup lsp_lightbulb
+					--autocmd!
+					--autocmd CursorHold,CursorHoldI * lua require('nvim-lightbulb').update_lightbulb()
+					--augroup END
+				--]], false)
+	--end
+
+  if vim.bo.filetype == 'cpp' then
+    map(buf, 'n', '<Leader>ae', ':ClangdSwitchSourceHeader<CR>', opts)
+    map(buf, 'n', '<Leader>av', ':ClangdSwitchSourceHeaderVs<CR>', opts)
+    map(buf, 'n', '<Leader>ah', ':ClangdSwitchSourceHeaderSp<CR>', opts)
+  elseif vim.bo.filetype == "tex" then
+    map(buf, 'n', '<Leader>lv', ':TexlabForward<CR>', opts)
+  end
+
+  --require('lsp_signature').on_attach()
+end
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    underline = true,
+    virtual_text = false,
+    signs = false,
+    update_in_insert = false,
+  }
+)
+
+vim.fn.sign_define("LspDiagnosticsSignError", {
+    texthl = "LspDiagnosticsSignError",
+    text = "✗",
+    numhl = "LspDiagnosticsSignError"
+})
+
+vim.fn.sign_define("LspDiagnosticsSignWarning", {
+    texthl = "LspDiagnosticsSignWarning",
+    text = "",
+    numhl = "LspDiagnosticsSignWarning"
+})
+
+vim.fn.sign_define("LspDiagnosticsSignHint", {
+    texthl = "LspDiagnosticsSignHint",
+    text = "",
+    numhl = "LspDiagnosticsSignHint"
+})
+
+vim.fn.sign_define("LspDiagnosticsSignInformation", {
+    texthl = "LspDiagnosticsSignInformation",
+    text = "",
+    numhl = "LspDiagnosticsSignInformation"
+})
+
+local function switch_source_header(bufnr, mode)
+  local params = { uri = vim.uri_from_bufnr(bufnr) }
+  vim.lsp.buf_request(
+    bufnr,
+    'textDocument/switchSourceHeader',
+    params,
+    function(err, _, result)
+      if err then error(tostring(err)) end
+      if not result then print ("Corresponding file can’t be determined") return end
+      vim.api.nvim_command(mode .. vim.uri_to_fname(result))
+    end
+  )
+end
+
+local servers = {
+  bashls = {},
+	rust_analyzer = {},
+	gopls = {},
+	julials = {},
+	pyls = {},
+  hls = {
+    cmd = { "haskell-language-server-wrapper", "--lsp" },
+    init_options = {
+      languageServerHaskell = {
+        hlintOn = true,
+        maxNumberOfProblems = 10,
+        completionSnippetsOn = true,
+      }
+    },
+  },
+  html = {},
+  jsonls = {},
+  r_language_server = {},
+  sqlls = { cmd = {"sql-language-server", "up", "--method", "stdio"} },
+
+
+  vimls = {},
+  zls = {},
+}
+
+
+
+local system_name
+
+if  vim.fn.has("mac") == 1 then
+	system_name = "macOS"
+elseif vim.fn.has("unix") == 1 then
+	system_name = "Linux"
+elseif vim.fn.has("win42") == 1 then
+	system_name = "Windows"
+else
+	print("Unsupported shit for sumneko!")
+end
+
+DATA_PATH = vim.fn.stdpath('data')
+CACHE_PATH = vim.fn.stdpath('cache')
+
+local sumneko_root_path = DATA_PATH ..
+                              "/lspinstall/lua/sumneko-lua/extension/server"
+-- '/lspconfig/sumneko_lua/lua-language-server'
+local sumneko_binary = sumneko_root_path .. '/bin/' .. system_name ..
+                           '/lua-language-server'
+
+lsp['sumneko_lua'].setup = {
+	require'lsp_signature'.on_attach(),
+	cmd = {sumneko_binary, '-E', sumneko_root_path .. '/main.lua'},
+	on_attach = custom_on_attach,
+	capabilties = custom_capabilities,
+	settings = {
+		Lua = {
+			runtime = {
+				version = 'LuaJIT',
+				path = vim.split(package.path, ';'),
+			},
+			completion = {keywordSnippet = "Replace", callSnippet = "Replace"},
+			diagnostics = {
+				enable=true,
+				globals={
+					"vim", "Color", "c", "Group", "g", "s", "describe", "it", "before_each", "after_each"
+				},
+			},
+			workspace = {
+				library = {
+					[vim.fn.expand('$VIMRUNTIME/lua')] = true,
+					[vim.fn.expand('$VIMRUNTIME/lua/vim/lsp')] = true,
+					[vim.fn.stdpath("config") .. '/lua'] = true,
+					["/usr/local/include/lua5.1"] = true,
+					["/usr/local/include/lua"] = true,
+				},
+				preloadFileSize = 2000
+			},
+			telemetry = {enable = true}
+		}
+	}
+}
+
+for server, config in pairs(servers) do
+  config.capabilities = custom_capabilities
+  config.on_attach = custom_on_attach
+  lsp[server].setup(config)
+end

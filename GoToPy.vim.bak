@@ -1,0 +1,8 @@
+function! GotoPython()
+    let current_line = getline('.')
+    let goto_file = matchstr(current_line, '\(File "\)\@<=\(.*\)\("\)\@=')
+    let goto_line = matchstr(current_line, '\(line \)\@<=[0-9]*')
+    execute "tabedit +" . goto_line . " " . goto_file
+endfunction
+
+nnoremap <silent> gP :call GotoPython()<CR>

@@ -1,0 +1,20 @@
+local util = require 'util'
+
+util.add_autocommand({
+  name = 'update_lightbulb',
+  events = { 'CursorHold *', 'CursorHoldI *' },
+  handler = function()
+    require'nvim-lightbulb'.update_lightbulb({
+      sign = {
+        enabled = false,
+      },
+      float = {
+        enabled = false,
+      },
+      virtual_text = {
+        enabled = true,
+        text = "",
+      },
+  })
+  end,
+})

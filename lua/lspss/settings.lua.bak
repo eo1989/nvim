@@ -1,0 +1,75 @@
+local lsp = require('lspconfig')
+
+local lsp_status = require('lsp-status')
+-- local remaps = require('lsp.remaps')
+vim.lsp.set_log_level("warn")
+
+require("lsp-colors").setup({
+  Error       = "#db4b4b",
+  Warning     = "#e0af68",
+  Information = "#0db9d7",
+  Hint        = "#10B981"
+})
+
+
+
+
+
+
+--[[ some colore to consider
+   [ #ff8659
+   [ #aed75f
+   [ #5eacd3
+   ]]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+local function on_attach(client, bufnr)
+    -- print(client.name)
+    -- remaps.set(client.server_capabilties, bufnr)
+    lsp_status.on_attach(client, bufnr)
+
+    -- adds beautiful icon to completion
+    require'lspkind'.init()
+    -- adds signature autocompletion while typing
+    require'lsp_signature'.on_attach()
+end
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+    virtual_text = {
+        spacing  = 0
+    },
+    signs            = true,
+    update_in_insert = false,
+    }
+)
+
+lsp_status.register_progress()
+
+local default_lsp_config = {on_attach = on_attach, capabilities = lsp_status.capabilities}
+local language_server_path = vim.fn.stdpath("cache") .. "/lspconfig"
+
+local servers = {
+    efm = require('lsp.servers.efm')(language_server_path),
+    bashls = require('lsp.servers.bashls')(language_server_path),
+    yamlls = require('lt.lsp.servers.yamlls')(language_server_path),
+    jsonls = require('lt.lsp.servers.jsonls')(language_server_path),
+    sumneko_lua = require('lt.lsp.servers.sumneko_lua')(language_server_path),
+}
+
+for server, config in pairs(servers) do
+    lsp[server].setup(vim.tbl_deep_extend("force", default_lsp_config, config))
+end

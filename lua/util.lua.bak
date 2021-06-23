@@ -1,0 +1,33 @@
+local _M = {}
+
+local cmd = vim.cmd
+
+function _M.new_augroup(defs)
+	for name, def in pairs(defs) do
+		cmd('augroup ' .. name)
+		cmd 'au!'
+		for _, statement in ipairs(def) do cmd('au ' .. statement) end
+		cmd 'augroup END'
+	end
+end
+
+function _M.to_keycodes(s)
+	return vim.api.nvim_replace_termcodes(s, true, true, true)
+end
+
+return _M
+--local M = {}
+
+--_G['autocmd_handlers'] = {}
+
+--function M.add_autocommand(obj)
+    --_G['autocmd_handlers'][obj.name] = obj.handler
+    --vim.cmd('augroup ' .. obj.name)
+    --vim.cmd('autocmd!')
+    --for _, v in ipairs(obj.events) do
+      --vim.cmd('autocmd ' .. v .. ' lua autocmd_handlers["' .. obj.name ..'"]()')
+    --end
+    --vim.cmd('augroup end')
+--end
+
+--return M

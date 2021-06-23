@@ -1,0 +1,17 @@
+local g = vim.g
+
+g.startify_files_number = 20
+g.webdevicons_enable_startify = 1
+g.startify_fortune_use_unicode = 1
+g.startify_lists = {
+	{ type = 'files',     header = {'   MRU'}            },
+	{ type = 'dir',       header = {'   MRU '.. vim.fn.getcwd()} },
+	{ type = 'commands',  header = {'   Commands'}       },
+}
+-- vim.g.startify_bookmarks = {
+-- 	'~/Documents/codes/cpp',
+-- 	{ c = '~/.config/nvim' },
+-- 	{ z = '~/.zshrc' }
+-- }
+g.startify_change_to_dir = 0
+-- g.startify_custom_header = ''

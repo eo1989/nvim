@@ -1,0 +1,18 @@
+local lsp = require('lspconfig')
+local functions = require('utils.functions')
+
+local black_d = require('lsp.servers.formatters.black_d')
+local pylint = require('lsp.servers.linters.pylint')
+
+local formatter = black
+local linter = pylint
+
+local languages = {
+   lua = luafmt,
+   python = {formatter, linter}
+}
+
+local efm_config = os.getenv('HOME') .. '/.config/efm-langserver/config.yaml'
+
+return function(language_server_path)
+    local bin_path = language_server_path .. "/efm-language/server:"
