@@ -1,3 +1,4 @@
+-- require "e0.globals"
 local fn = vim.fn
 local api = vim.api
 local fmt = string.format
@@ -103,46 +104,72 @@ function M.adopt_winhighlight(win_id, target, name, default)
     end)
     if found then
       local hl_group = vim.split(found, ":")[2]
-      local bg = M.hl_value(hl_group, "bg")
-      local fg = M.hl_value(default, "fg")
-      local gui = M.hl_value(default, "gui")
-      M.highlight(name, { guibg = bg, guifg = fg, gui = gui })
+      local bg = M.get_hl(hl_group, "bg")
+      local fg = M.get_hl(default, "fg")
+      local gui = M.get_hl(default, "gui")
+      M.set_hl(name, { guibg = bg, guifg = fg, gui = gui })
     end
   end
   return name
 end
 
---- TODO eventually move to using `nvim_set_hl`
---- however for the time being that expects colors
---- to be specified as rgb not hex
+
+--- Note: vim.highlight's link and create are private, so
+--- eventually move to using `nvim_set_hl`
 ---@param name string
 ---@param opts table
-function M.highlight(name, opts)
-  local keys = {
-    gui = true,
-    guifg = true,
-    guibg = true,
-    guisp = true,
-    cterm = true,
-    blend = true,
-  }
-  local force = opts.force or false
-  if name and opts and not vim.tbl_isempty(opts) then
-    if opts.link and opts.link ~= "" then
-      vim.cmd("highlight" .. (force and "!" or "") .. " link " .. name .. " " .. opts.link)
+function M.set_hl(name, opts)
+  assert(name and opts, "Both 'name' and 'opts' must be specified")
+  if not vim.tbl_isempty(opts) then
+    if opts.link then
+      vim.highlight.link(name, opts.link, opts.force)
     else
-      local cmd = { "highlight", name }
-      for k, v in pairs(opts) do
-        if keys[k] and keys[k] ~= "" then
-          table.insert(cmd, fmt("%s=", k) .. v)
-        end
-      end
-      local ok, msg = pcall(vim.cmd, table.concat(cmd, " "))
+      local ok, msg = pcall(vim.highlight.create, name, opts)
       if not ok then
-        vim.notify(fmt("Failed to set %s because: %s", name, msg))
+        vim.notify(fmt("Failed to set %s beause: %s", name, msg))
       end
     end
   end
+end
+
+---convert a table of gui values into string
+---@param hl table<string, string>
+---@return string
+local function flatten_gui(hl)
+  local gui_attr = {"underline", "bold", "undercurl", "italic"}
+  local gui = {}
+  for name, value in pairs(hl) do
+    if value and vim.tbl_contains(gui_attr, name) then
+      table.insert(gui, name)
+    end
+  end
+  return table.concat(gui, ",")
+end
+
+---Get the value of a hl group
+---this func is a small wrapper around `nvim_get_hl_by_name`
+---which handles errors, fallbacks as well as returning a gui value
+---in the right format
+---@param grp string
+---@param attr string
+---@param fallback string
+---@return string
+function M.get_hl(grp, attr, fallback)
+  assert(grp, "Cannot get a highlight w/o specifying a group")
+  local attrs = {fg = "foreground", bg = "background"}
+  attr = attrs[attr] or attr
+  local hl = api.nvim_get_hl_by_name(grp, true)
+  if attr == "gui" then
+    return flatten_gui(hl)
+  end
+  local color = hl[attr] or fallback
+  -- convert the decimal rgba val from the hl by name to a 6 char hex + padding if needed
+  if not color then
+    vim.notify(fmt("%s %s doesnt exist", grp, attr))
+    return "NONE"
+  end
+  -- convert the decimal rgba val from the hl by name to a 6 char hex + padding if needed
+  return "#" .. bit.tohex(color, 6)
 end
 
 function M.clearhl(name)
@@ -153,42 +180,11 @@ function M.clearhl(name)
 end
 
 
-
-local gui_attr = { "underline", "bold", "undercurl", "italic" }
-local attrs = { fg = "foreground", bg = "background" }
-
----get the color value of part of a highlight group
----@param grp string
----@param attr string
----@param fallback string
----@return string
-function M.hl_value(grp, attr, fallback)
-  if not grp then
-    return vim.notify "Cannot get a highlight without specifying a group"
-  end
-  attr = attrs[attr] or attr
-  local hl = api.nvim_get_hl_by_name(grp, true)
-  if attr == "gui" then
-    local gui = {}
-    for name, value in pairs(hl) do
-      if value and vim.tbl_contains(gui_attr, name) then
-        table.insert(gui, name)
-      end
-    end
-    return table.concat(gui, ",")
-  end
-  local color = hl[attr] or fallback
-  -- convert the decimal rgba value from the hl by name to a 6 character hex + padding if needed
-  if not color then
-    vim.notify(fmt("%s %s does not exist", grp, attr))
-    return "NONE"
-  end
-  return "#" .. bit.tohex(color, 6)
-end
-
+---Apply a list of highlights
+---@param hls table[]
 function M.all(hls)
   for _, hl in ipairs(hls) do
-    M.highlight(unpack(hl))
+    M.set_hl(unpack(hl))
   end
 end
 
@@ -197,24 +193,19 @@ end
 -- Color Scheme {{{1
 -----------------------------------------------------------------------------//
 vim.g.doom_one_telescope_higlights = false
-local ok, msg = pcall(vim.cmd, "colorscheme doom-one")
-if not ok then
-  vim.notify(msg, vim.log.levels.ERROR)
-  return M
-end
-
+vim.cmd "colorscheme doom-one"
 
 ---------------------------------------------------------------------------------
 -- Plugin highlights
 ---------------------------------------------------------------------------------
 local function plugin_highlights()
-  M.highlight("TelescopePathSeparator", { guifg = "#51AFEF" })
-  M.highlight("TelescopeQueryFilter", { link = "IncSearch" })
+  M.set_hl("TelescopePathSeparator", { guifg = "#51AFEF" })
+  M.set_hl("TelescopeQueryFilter", { link = "IncSearch" })
 
-  M.highlight("CompeDocumentation", { link = "Pmenu" })
+  M.set_hl("CompeDocumentation", { link = "Pmenu" })
 
-  M.highlight("BqfPreviewBorder", { guifg = "Gray" })
-  M.highlight("ExchangeRegion", { link = "Search" })
+  M.set_hl("BqfPreviewBorder", { guifg = "#2f628e" })
+  M.set_hl("ExchangeRegion", { link = "Search" })
 
   if e0.plugin_installed("conflict-marker.vim") then
     M.all {
@@ -231,9 +222,9 @@ local function plugin_highlights()
 end
 
 local function general_overrides()
-  local cursor_line_bg = M.hl_value("CursorLine", "bg")
-  local comment_fg = M.hl_value("Comment", "fg")
-  local msg_area_bg = M.darken_color(M.hl_value("Normal", "bg"), -10)
+  -- local cursor_line_bg = M.get_hl("CursorLine", "bg")
+  local comment_fg = M.get_hl("Comment", "fg")
+  local msg_area_bg = M.darken_color(M.get_hl("Normal", "bg"), -10)
   M.all {
     -- { "Todo", { guifg = "red", gui = "bold" } },
     { "mkdLineBreak", { link = "NONE", force = true } },
@@ -246,6 +237,8 @@ local function general_overrides()
     -- Floats
     -----------------------------------------------------------------------------//
     { "NormalFloat", { link = "Normal" }},
+    { "GreyFloat", {guibg = "lightgray"}},
+    { "GreyFloatBorder", {guifg = "royalblue" }},
     -----------------------------------------------------------------------------//
     { "CursorLineNr", { gui = "bold" }},
     { "FoldColumn", { guibg = "background" }},
@@ -292,8 +285,8 @@ local function general_overrides()
     -----------------------------------------------------------------------------//
     -- LSP
     -----------------------------------------------------------------------------//
-    { "LspReferenceText", { guibg = cursor_line_bg, gui = "underline" }},
-    { "LspReferenceRead", { guibg = cursor_line_bg, gui = "underline" }},
+    { "LspReferenceText", { gui = "underline" }},
+    { "LspReferenceRead", { gui = "underline" }},
     { "LspDiagnosticsSignHint", { guifg = "#FAB005" }},
     { "LspDiagnosticsDefaultHint",  { guifg = "#FAB005" }},
     { "LspDiagnosticsDefaultError", { guifg = "#FAB005" }},
@@ -316,10 +309,10 @@ local function general_overrides()
 end
 
 local function set_sidebar_highlight()
-  local normal_bg = M.hl_value("Normal", "bg")
-  local split_color = M.hl_value("VertSplit", "fg")
+  local normal_bg = M.get_hl("Normal", "bg")
+  local split_color = M.get_hl("VertSplit", "fg")
   local bg_color = M.darken_color(normal_bg, -8)
-  local st_color = M.darken_color(M.hl_value("Visual", "bg"), -20)
+  local st_color = M.darken_color(M.get_hl("Visual", "bg"), -20)
   local hls = {
     { "PanelBackground", { guibg = bg_color }},
     { "PanelHeading", { guibg = bg_color, gui = "bold" }},
@@ -328,7 +321,7 @@ local function set_sidebar_highlight()
     { "PanelSt", { guibg = st_color }}
   }
   for _, grp in ipairs(hls) do
-    M.highlight(unpack(grp))
+    M.set_hl(unpack(grp))
   end
 end
 
@@ -346,16 +339,9 @@ local function on_sidebar_enter()
   vim.cmd("setlocal winhighlight=" .. highlights)
 end
 
-function M.clear_hl(name)
-  if not name then
-    return
-  end
-  vim.cmd(fmt("highlight clear %s", name))
-end
-
 local function colorscheme_overrides()
   if vim.g.colors_name == "doom-one" then
-    local keyword_fg = M.hl_value("Keyword", "fg")
+    local keyword_fg = M.get_hl("Keyword", "fg")
     -- local dark_bg = M.darken_color(M.hl_value("Normal", "bg"), -6)
     M.all {
       -- TODO the default bold makes ... not use ligatures
@@ -364,7 +350,8 @@ local function colorscheme_overrides()
       { "WhichKeyFloat", { link = "PanelBackground" }},
       { "Cursor", { gui = "NONE" }},
       { "CursorLine", { guibg = "NONE" }},
-      { "CursorLineNr", { guifg = "#51AFEF", guibg = "NONE" }},
+      -- { "CursorLineNr", { guifg = "#51AFEF", guibg = "NONE" }},
+      { "CursorLineNr", { guifg = keyword_fg}},
       { "Pmenu", {  guifg = "lightgray", blend = 6 }},
       { "TSVariable", { guifg = "NONE" }},
       { "TSProperty", { link = "TSFunction"}},
@@ -373,10 +360,10 @@ local function colorscheme_overrides()
     }
   elseif vim.g.colors_name == "onedark" then
     M.all{
-      { "LspDiagnosticsFloatingWarning", { guibg = "none" }},
-      { "LspDiagnosticsFloatingError", { guibg = "none" }},
-      { "LspDiagnosticsFloatingHint", { guibg = "none" }},
-      { "LspDiagnosticsFloatingInformation", { guibg = "none" }},
+      { "LspDiagnosticsFloatingWarning", { guibg = "NONE" }},
+      { "LspDiagnosticsFloatingError", { guibg = "NONE" }},
+      { "LspDiagnosticsFloatingHint", { guibg = "NONE" }},
+      { "LspDiagnosticsFloatingInformation", { guibg = "NONE" }},
       -- { "Todo", {guifg = "red", gui = "bold"}}
       }
   end

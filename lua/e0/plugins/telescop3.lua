@@ -2,7 +2,7 @@ return function()
   local telescope = require("telescope")
   local actions = require("telescope.actions")
   local themes = require("telescope.themes")
-  local trouble = require("trouble.providers.telescope")
+  -- local trouble = require("trouble.providers.telescope")
 
   telescope.setup {
     defaults = {
@@ -32,7 +32,7 @@ return function()
           ["<c-j>"] = actions.move_selection_next,
           ["<c-k>"] = actions.move_selection_previous,
 
-          ["<c-t>"] = trouble.smart_open_with_trouble,
+          -- ["<c-t>"] = trouble.smart_open_with_trouble,
 
           ["<c-q>"] = actions.smart_send_to_qflist + actions.open_qflist,
           ["<CR>"] = actions.select_default + actions.center,
@@ -42,7 +42,7 @@ return function()
         n = {
           ["<C-j>"] = actions.move_selection_next,
           ["<C-k>"] = actions.move_selection_previous,
-          ["<c-t>"] = trouble.open_with_trouble,
+          -- ["<c-t>"] = trouble.open_with_trouble,
           ["<C-q>"] = actions.smart_send_to_qflist + actions.open_qflist
       },
       -- set this value to 'flex' once telescope/#823 is merged
@@ -51,8 +51,8 @@ return function()
       frecency = {
         workspaces = {
           ["conf"] = vim.env.DOTFILES,
-          ["project"] = vim.env.PROJECTS_DIR,
-          ["wiki"] = vim.g.wiki_path
+          -- ["project"] = vim.env.PROJECTS_DIR,
+          -- ["wiki"] = vim.g.wiki_path
         }
       },
       fzf_writer = {
@@ -92,7 +92,8 @@ return function()
 }
   telescope.load_extension("fzf")
   telescope.load_extension("cheat")
-
+  -- telescope.load_extension("fd")
+  -- telescope.load_extension("trouble")
   --- NOTE: this must be required after setting up telescope
   --- otherwise the result will be cached without the updates
   --- from the setup call

@@ -66,16 +66,10 @@ require("packer").startup {
     use "wbthomason/packer.nvim"
     -- use_rocks "penlight"
 
-    -- use {
-    --   "airblade/vim-rooter",
-    --   config = function()
-    --     vim.g.rooter_silent_chdir = 1
-    --     vim.g.rooter_resolve_links = 1
-    --   end
-    -- }
 
     use {
       "RRethy/vim-illuminate",
+      cmd = "IlluminationEnable",
       setup = function()
         vim.g.Illuminate_ftblacklist = {'NvimTree'}
       end
@@ -92,6 +86,8 @@ require("packer").startup {
 
     use {
       "nvim-telescope/telescope.nvim",
+      event = "CursorHold",
+      keys = {"<c-p>"},
       config = conf "telescop3",
       requires = {
         "nvim-lua/popup.nvim",
@@ -106,13 +102,14 @@ require("packer").startup {
       }
     }
     use "nvim-telescope/telescope-cheat.nvim"
+    -- use "kyazdani42/nvim-web-devicons"
 
     use "folke/lua-dev.nvim"
     use "nanotee/luv-vimdocs"
     use "milisims/nvim-luaref"
     use "bfredl/nvim-luadev"
     use "tjdevries/nlua.nvim"
-    use "euclidianAce/BetterLua.vim"
+    -- use "euclidianAce/BetterLua.vim"
 
     use "pechorin/any-jump.vim"
     use "neovimhaskell/haskell-vim"
@@ -132,12 +129,6 @@ require("packer").startup {
           }
       end,
       }
-    -- use {
-    --   "antoinemadec/FixCursorHold.nvim",
-    --   config = function()
-    --     vim.g.cursorhold_updatime = 1000
-    --   end
-    --   }
 
     use {
       "editorconfig/editorconfig-vim",
@@ -169,6 +160,7 @@ require("packer").startup {
   use {
       "kosayoda/nvim-lightbulb",
         config = function()
+          vim.api.nvim_command("highligh LightBulbVirtualText guifg=red")
           e0.augroup("NvimLightbulb", {
             {
               events =  {"CursorHold", "CursorHoldI"},
@@ -189,6 +181,7 @@ require("packer").startup {
       "glepnir/lspsaga.nvim",
         config = conf "lspsagah"
       }
+
   use {
       "kabouzeid/nvim-lspinstall",
         config = function()
@@ -203,8 +196,9 @@ require("packer").startup {
 
     use {
       "hrsh7th/nvim-compe",
-        confg = conf "comp3"
-    }
+        event = "InsertEnter",
+        config = conf("comp3")
+      }
 
     use {
       "hrsh7th/vim-vsnip",
@@ -226,10 +220,9 @@ require("packer").startup {
       end
     }
 
-    use {
-      "kevinhwang91/nvim-bqf",
-        config = conf "bQf"
-    }
+    use {"kevinhwang91/nvim-bqf"}
+        -- config = conf "bQf"
+
 
     use {
       "arecarn/vim-fold-cycle",
@@ -254,15 +247,15 @@ require("packer").startup {
     use {
       "itchyny/vim-highlighturl",
       config = function()
-        vim.g.highlighturl_guifg = require("e0.highlights").hl_value("Keyword", "fg")
+        vim.g.highlighturl_guifg = require("e0.highlights").get_hl("Keyword", "fg")
       end
     }
 
     -- NOTE: marks are currently broken in neovim i.e. deleted marks are resurrected on restarting nvim
     use {
       "mbbill/undotree",
-      -- cmd = "UndotreeToggle",
-      -- keys = "<leader>u",
+      cmd = "UndotreeToggle",
+      keys = "<leader>u",
       config = function()
         vim.g.undotree_TreeNodeShape = "◦" -- Alternative: '◉'
         vim.g.undotree_SetFocusWhenToggle = 1
@@ -272,8 +265,8 @@ require("packer").startup {
     }
     use {
       "vim-test/vim-test",
-      -- cmd = {"TestFile", "TestNearest", "TestSuite"},
-      -- keys = {"<localleader>tf", "<localleader>tn", "<localleader>ts"},
+      cmd = {"TestFile", "TestNearest", "TestSuite"},
+      keys = {"<localleader>tf", "<localleader>tn", "<localleader>ts"},
       setup = function()
         vim.cmd [[
           let test#strategy = "neovim"
@@ -307,13 +300,15 @@ require("packer").startup {
 
     use {
       "junegunn/fzf",
-        setup = function()
-          vim.cmd(string.format("!%s/install -all", conf.install_path))
-          vim.cmd(string.format("!ln -s %s ~/.fzf", conf.install_path))
+        run = function()
+          vim.fn['fzf#install']()
         end
     }
 
-    use "junegunn/fzf.vim"
+    use {
+      "junegunn/fzf.vim",
+      requires = {"junegunn/fzf"}
+      }
 
     use {
       "norcalli/nvim-colorizer.lua",
@@ -324,7 +319,7 @@ require("packer").startup {
           {
             RGB = true,
             mode = "foreground"
-          }),
+          })
         end,
       }
 
@@ -340,8 +335,8 @@ require("packer").startup {
     -- it is used this errors that it is used twice
     use {
       "folke/trouble.nvim",
-      -- keys = {"<leader>ld"},
-      -- cmd = {"TroubleToggle"},
+      keys = {"<leader>ld"},
+      cmd = {"TroubleToggle"},
       requires = "nvim-web-devicons",
       config = function()
         require("which-key").register(
@@ -370,10 +365,9 @@ require("packer").startup {
 
     use {
       "kyazdani42/nvim-tree.lua",
-        requires = "nvim-web-devicons",
+        requires = "kyazdani42/nvim-web-devicons",
         config =  conf "nvim-tre3"
       }
-    -- use "kyazdani42/nvim-web-devicons"
     -- use {
     --   "vhyrro/neorg",
     --   opt = true,
@@ -410,10 +404,6 @@ require("packer").startup {
    --    end
    --  }
 
-    -- sets searchable path for filetypes like go so 'gf' works
-    -- ft = {"go", "python", "javascript", "typescript", "lua", "rust", "julia", "haskell", "cpp"}}
-
-
     use "NTBBloodbath/doom-one.vim"
     -- use "romgrk/doom-one.nvim"
     use "monsonjeremy/onedark.nvim"
@@ -432,8 +422,8 @@ require("packer").startup {
       "nvim-treesitter/playground",
         requires = "nvim-treesitter",
         after = "nvim-treesitter",
-      -- keys = "<leader>E",
-      -- cmd = {"TSPlaygroundToggle", "TSHighlightCapturesUnderCursor"},
+      keys = "<leader>E",
+      cmd = {"TSPlaygroundToggle", "TSHighlightCapturesUnderCursor"},
       config = function()
         require("which-key").register {
           ["<leader>E"] = {
@@ -469,21 +459,47 @@ require("packer").startup {
     use "plasticboy/vim-markdown"
     use "mtdl9/vim-log-highlighting"
 
-    use {"lewis6991/gitsigns.nvim", config = conf "gitsign5"}
+    use {
+      "lewis6991/gitsigns.nvim",
+      event = "BufRead",
+      config = conf "gitsign5"
+    }
 
 
     use {
       "TimUntersberger/neogit",
-      -- cmd = "Neogit",
-      -- keys = {"<localleader>gs", "<localleader>gl", "<localleader>gp"},
+      cmd = "Neogit",
+      keys = {"<localleader>gs", "<localleader>gl", "<localleader>gp"},
       requires = "plenary.nvim",
       config = conf "neogit"
     }
+    use {
+      "sindrets/diffview.nvim",
+        cmd = "DiffviewOpen",
+        module = "diffview",
+        keys = "<localleader>gd",
+        config = function()
+          require("which-key").register(
+          {gd = {"<Cmd>DiffviewOpen<CR>", "diff ref"}},
+          {prefix = "<localleader>"}
+        )
+        require("diffview").setup{
+         key_bindings = {
+          file_panel = {
+            ["q"] = "<Cmd>DiffviewClose<CR>",
+            },
+            view = {
+            ["q"] = "<Cmd>DiffviewClose<CR>",
+            },
+          },
+        }
+      end,
+      }
 
     use {
       "pwntester/octo.nvim",
-      -- cmd = "Octo",
-      -- keys = {"<localleader>opl"},
+      cmd = "Octo",
+      keys = {"<localleader>opl"},
       config = function()
         require("octo").setup()
         require("which-key").register(
@@ -535,7 +551,7 @@ require("packer").startup {
 
     use {
       "phaazon/hop.nvim",
-      -- keys = {{"n", "s"}},
+      keys = {{"n", "s"}},
       setup = function()
         local hop = require("hop")
         -- remove h,j,k,l from hops list of keys
@@ -553,7 +569,7 @@ require("packer").startup {
     use {"rafcamlet/nvim-luapad"}
     use {
       "akinsho/nvim-bufferline.lua",
-        -- requires = "nvim-web-devicons",
+        requires = "nvim-web-devicons",
         config = conf "nvim-buffline"
     }
     use {
@@ -591,10 +607,10 @@ require("packer").startup {
 
         local function toggle()
           lazygit:toggle()
-        end,
+        end
         require("which-key").register {
           ["<leader>lg"] = {toggle, "toggleterm: toggle lazygit"}
-          },
+          }
       end,
     }
   end,
