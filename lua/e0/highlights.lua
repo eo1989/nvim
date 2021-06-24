@@ -107,7 +107,7 @@ function M.adopt_winhighlight(win_id, target, name, default)
       local bg = M.get_hl(hl_group, "bg")
       local fg = M.get_hl(default, "fg")
       local gui = M.get_hl(default, "gui")
-      M.set_hl(name, { guibg = bg, guifg = fg, gui = gui })
+      M.get_hl(name, { guibg = bg, guifg = fg, gui = gui })
     end
   end
   return name
@@ -118,7 +118,7 @@ end
 --- eventually move to using `nvim_set_hl`
 ---@param name string
 ---@param opts table
-function M.set_hl(name, opts)
+function M.get_hl(name, opts)
   assert(name and opts, "Both 'name' and 'opts' must be specified")
   if not vim.tbl_isempty(opts) then
     if opts.link then
@@ -184,7 +184,7 @@ end
 ---@param hls table[]
 function M.all(hls)
   for _, hl in ipairs(hls) do
-    M.set_hl(unpack(hl))
+    M.get_hl(unpack(hl))
   end
 end
 
@@ -199,13 +199,13 @@ vim.cmd "colorscheme doom-one"
 -- Plugin highlights
 ---------------------------------------------------------------------------------
 local function plugin_highlights()
-  M.set_hl("TelescopePathSeparator", { guifg = "#51AFEF" })
-  M.set_hl("TelescopeQueryFilter", { link = "IncSearch" })
+  M.get_hl("TelescopePathSeparator", { guifg = "#51AFEF" })
+  M.get_hl("TelescopeQueryFilter", { link = "IncSearch" })
 
-  M.set_hl("CompeDocumentation", { link = "Pmenu" })
+  M.get_hl("CompeDocumentation", { link = "Pmenu" })
 
-  M.set_hl("BqfPreviewBorder", { guifg = "#2f628e" })
-  M.set_hl("ExchangeRegion", { link = "Search" })
+  M.get_hl("BqfPreviewBorder", { guifg = "#2f628e" })
+  M.get_hl("ExchangeRegion", { link = "Search" })
 
   if e0.plugin_installed("conflict-marker.vim") then
     M.all {
@@ -321,7 +321,7 @@ local function set_sidebar_highlight()
     { "PanelSt", { guibg = st_color }}
   }
   for _, grp in ipairs(hls) do
-    M.set_hl(unpack(grp))
+    M.get_hl(unpack(grp))
   end
 end
 
