@@ -19,7 +19,7 @@ return function()
     }
   }
 
-  require("e0.highlights").set_hl("LspSagaLightbulb", {guifg = "NONE", guibg = "NONE"})
+  -- require("e0.highlights").set_hl("LspSagaLightbulb", {guifg = "NONE", guibg = "NONE"})
 
   e0.vnoremap("<leader>ca", ":<c-u>lua require('lspsaga.codeaction').range_code_action()<CR>")
   e0.inoremap("<c-k>", "<cmd>lua require('lspsaga.signaturehelp').signature_help()<CR>")

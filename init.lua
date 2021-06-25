@@ -33,55 +33,32 @@
 --]]
 -- g.markdown_fenced_languages = {"bash=sh", "json", "python", "lua", "sh"}
 -- vim.g.win_blend = 0
-vim.cmd("syntax enable")
+-- vim.cmd("syntax enable")
 -- vim.cmd("filetype plugin indent on")
 
-vim.g.open_command = vim.loop.os_uname() == "Darwin" and "open" or "xdg-open"
-vim.g.dotfiles = vim.env.DOTFILES or vim.fn.expand "~"
+vim.g.open_command = vim.loop.os_uname() == "Darwin" and "open"
+
+-- or "xdg-open"
+vim.g.dotfiles = vim.env.DOTFILES or vim.cmd [[lua os.getenv "HOME"]]
 vim.g.vim_dir = vim.g.dotfiles .. "/.config/nvim"
 
 
-vim.g.mapleader = " "
-vim.g.maplocalleader = ","
+-- vim.g.mapleader = " "
+-- vim.g.maplocalleader = ","
 
 require "e0.globals"
-require "e0.settings"
-require "e0.mappings"
-require "e0.highlights"
-require "e0.statusline"
+require'e0.settings'.setup()
+require'e0.mappings'.setup()
+-- require "e0.highlights"
 require "e0.plugins"
+require "e0.statusline"
 require "e0.numbers"
 require "e0.quickfix"
-require "e0.autocommands"
+require'e0.autocmd'.setup()
 
 
---[[ vim.g.loaded_python_provider = 0
-vim.g.loaded_ruby_provider = 1
-vim.g.loaded_perl_provider = 1
 
-vim.g.loaded_gzip = 0
-vim.g.loaded_tar = 0
-vim.g.loaded_tarPlugin = 0
-vim.g.loaded_zip = 0
-vim.g.loaded_zipPlugin = 0
--- vim.g.loaded_getscript = 1
--- vim.g.loaded_getscriptPlugin = 1
-vim.g.loaded_vimball = 1
-vim.g.loaded_vimballPlugin = 1
-vim.g.loaded_matchit = 1
-vim.g.loaded_2html_plugin = 0
-vim.g.loaded_logiPat = 1
-vim.g.loaded_rrhelper = 1
-vim.g.loaded_netrw = 0
-vim.g.loaded_netrwPlugin = 0
-vim.g.loaded_tutor_mode_plugin = 0
- ]]
 
------------------------------------------------------------------------------//
--- Python & node host_prog
------------------------------------------------------------------------------//
-vim.g.python3_host_prog = '~/.pyenv/version/py3nvim-perm/bin/python3'
-vim.g.node_host_prog = '/usr/local/bin/neovim-node-host'
 
 -- require("e0.globals")
 -- require('eo.mappings')

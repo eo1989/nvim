@@ -2,36 +2,31 @@
 -- require "e0"
 -- require "e0.globals"
 
--- local fn = vim.fn
+local fn = vim.fn
 -- local has = e0.has
 -- local is_work = has "mac"
 -- local is_home = not is_work
--- local fmt = string.format
+local fmt = string.format
 
 local PACKER_COMPILED_PATH = vim.fn.stdpath "cache" .. "/plugin/packer_compiled.vim"
 
-local function setup_packer()
   --- use a wildcard to match on local and upstream versions of packer
-  local install_path = vim.fn.stdpath "data" .. "/site/pack/packer/*/packer.nvim"
-  if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-    print "Downloading packer.nvim..."
-    print(vim.fn.system { "git", "clone", "https://github.com/wbthomason/packer.nvim", install_path })
-    vim.cmd "packadd! packer.nvim"
-    require("packer").sync()
-  -- elseif not vim.env.DEVELOPING then
-  --   vim.cmd "packadd! packer.nvim"
-  -- else
-  --   vim.cmd "packadd! local-packer.nvim"
-  end
+local install_path = fmt("%s/site/pack/packer/start/packer.nvim", fn.stdpath "data")
+if fn.empty(fn.glob(install_path)) > 0 then
+  vim.notify "Downloading packer.nvim..."
+  vim.notify(
+    fn.system {"git", "clone", "https://github.com/wbthomason/packer.nvim", install_path}
+    )
+  vim.cmd "packadd! packer.nvim"
+  require("packer").sync()
+-- else
+--   local name = vim.env.DEVELOPING and "local-packer.nvim" or "packer.nvim"
+--  vim.cmd(fmt("packadd! %s", name))
 end
-
--- local PACKER_COMPILED_PATH = vim.fn.stdpath "cache" .. "/plugin/packer_compiled.vim"
--- Make sure packer is installed on the current machine and load
--- the dev or upstream version depending on if we are at work or not
-setup_packer()
 
 -- cfilter plugin allows filter down an existing quickfix list
 vim.cmd "packadd! cfilter"
+-- vim.cmd "packadd! Packer.nvim"
 
 e0.augroup("PackerSetupInit", {
     {
@@ -49,11 +44,24 @@ e0.augroup("PackerSetupInit", {
 e0.nnoremap("<leader>ps", [[<Cmd>PackerSync<CR>]])
 e0.nnoremap("<leader>pc", [[<Cmd>PackerClean<CR>]])
 
+---@param path string
+local function dev(path)
+  return os.getenv "HOME".."/dev/"..path
+end
+
+local function developing()
+  return vim.env.DEVELOPING ~= nil
+end
+
+local function not_developing()
+  return not vim.env.DEVELOPING
+end
+
 ---Require a plugin config
 ---@param name string
 ---@return function
 local function conf(name)
-  return require(string.format("e0.plugins.%s", name))
+  return require(fmt("e0.plugins.%s", name))
 end
 
 --[[
@@ -67,9 +75,12 @@ require("packer").startup {
     -- use_rocks "penlight"
 
 
+    use {"ahmedkhalf/jupyter-nvim"}
+    use {"bfredl/nvim-ipy"}
+
     use {
       "RRethy/vim-illuminate",
-      cmd = "IlluminationEnable",
+      cmd = "<cmd>IlluminationEnable<cr>",
       setup = function()
         vim.g.Illuminate_ftblacklist = {'NvimTree'}
       end
@@ -84,10 +95,52 @@ require("packer").startup {
       end
       }
 
+use {
+      "christoomey/vim-tmux-navigator",
+        config = function()
+          vim.g.tmux_navigator_no_mappings = 1
+          e0.nnoremap("<C-H>", "<cmd>TmuxNavigatorLeft<CR>")
+          e0.nnoremap("<C-J>", "<cmd>TmuxNavigatorDown<CR>")
+          e0.nnoremap("<C-K>", "<cmd>TmuxNavigatorUp<CR>")
+          e0.nnoremap("<C-L>", "<cmd>TmuxNavigatorRight<CR>")
+          -- Disable tmux navigator when zooming the vim pane
+          vim.g.tmux_navigator_disable_when_zoomed = 1
+          vim.g.tmux_navigator_save_on_switch = 2
+        end,
+    }
+
+    use {
+      "nvim-lua/plenary.nvim",
+      config = function()
+        e0.augroup("PlenaryTests", {
+          {
+          events = {"BufEnter"},
+          targets = {"*/Dev/*/tests/*_spec.lua"}, -- change this for .py, .jl, .hs
+          command = function()
+            require("which-key").register({
+              t = {
+                name = "+plenary",
+                f = {"<Plug>PlenaryTestFile", "test file"},
+                d = {
+                  "<cmd>PlenaryBustedDirectory tests/ {minimal_init = 'tests/minimal.vim'}<CR>",
+                  "test directory",
+                  },
+                },
+              },
+              {
+                prefix = "<localleader>",
+                buffer = 0,
+                })
+          end,
+          },
+        })
+      end,
+    }
+
+
     use {
       "nvim-telescope/telescope.nvim",
       event = "CursorHold",
-      keys = {"<c-p>"},
       config = conf "telescop3",
       requires = {
         "nvim-lua/popup.nvim",
@@ -101,8 +154,9 @@ require("packer").startup {
         }
       }
     }
+
     use "nvim-telescope/telescope-cheat.nvim"
-    -- use "kyazdani42/nvim-web-devicons"
+    use "kyazdani42/nvim-web-devicons"
 
     use "folke/lua-dev.nvim"
     use "nanotee/luv-vimdocs"
@@ -160,7 +214,7 @@ require("packer").startup {
   use {
       "kosayoda/nvim-lightbulb",
         config = function()
-          vim.api.nvim_command("highligh LightBulbVirtualText guifg=red")
+          vim.api.nvim_command("highlight LightBulbVirtualText guifg=red")
           e0.augroup("NvimLightbulb", {
             {
               events =  {"CursorHold", "CursorHoldI"},
@@ -200,10 +254,14 @@ require("packer").startup {
         config = conf("comp3")
       }
 
+      use {
+        "hrsh7th/vim-vsnip-integ"
+      }
+
     use {
       "hrsh7th/vim-vsnip",
+      event = "InsertEnter",
       requires = {
-        "hrsh7th/vim-vsnip-integ",
         "rafamadriz/friendly-snippets",
         "hrsh7th/nvim-compe"
       },
@@ -245,10 +303,10 @@ require("packer").startup {
     use "psliwka/vim-smoothie"
 
     use {
-      "itchyny/vim-highlighturl",
-      config = function()
-        vim.g.highlighturl_guifg = require("e0.highlights").get_hl("Keyword", "fg")
-      end
+      "itchyny/vim-highlighturl"
+      -- config = function()
+        -- vim.g.highlighturl_guifg = require("e0.highlights").get_hl("Keyword", "fg")
+      -- end
     }
 
     -- NOTE: marks are currently broken in neovim i.e. deleted marks are resurrected on restarting nvim
@@ -307,7 +365,10 @@ require("packer").startup {
 
     use {
       "junegunn/fzf.vim",
-      requires = {"junegunn/fzf"}
+      requires = {
+        "junegunn/fzf"
+    --    run = 'cd ~/.fzf && ./install --all',
+        },
       }
 
     use {
@@ -389,8 +450,8 @@ require("packer").startup {
    use {
      "tpope/vim-surround",
        config = function()
-         e0.vmap("s", "<Plug>VSurround")
-         e0.vmap("s", "<Plug>VSurround")
+         e0.xmap("s", "<Plug>VSurround")
+         e0.xmap("s", "<Plug>VSurround")
       end
       }
   use {"kassio/neoterm"}
@@ -465,6 +526,15 @@ require("packer").startup {
       config = conf "gitsign5"
     }
 
+    use {
+      "ruifm/gitlinker.nvim",
+      require = "plenary.nvim",
+      keys = {"<localleader>gu"},
+      config = function()
+        require("which-key").register{["<localleader>gu"] = "gitlinker: get line url"}
+        require("gitlinker").setup {opts = {mappings = "<localleader>gu"}}
+      end,
+    }
 
     use {
       "TimUntersberger/neogit",

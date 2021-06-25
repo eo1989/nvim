@@ -8,9 +8,6 @@ local M = {}
 
 local ts_playground_loaded, ts_hl_info
 
----Convert a hex color to rgb
----@param color string
----@return number
 ---@return number
 ---@return number
 local function hex_to_rgb(color)
@@ -118,7 +115,7 @@ end
 --- eventually move to using `nvim_set_hl`
 ---@param name string
 ---@param opts table
-function M.get_hl(name, opts)
+function M.set_hl(name, opts)
   assert(name and opts, "Both 'name' and 'opts' must be specified")
   if not vim.tbl_isempty(opts) then
     if opts.link then
@@ -172,7 +169,7 @@ function M.get_hl(grp, attr, fallback)
   return "#" .. bit.tohex(color, 6)
 end
 
-function M.clearhl(name)
+function M.clear_hl(name)
   if not name then
     return
   end
@@ -184,7 +181,7 @@ end
 ---@param hls table[]
 function M.all(hls)
   for _, hl in ipairs(hls) do
-    M.get_hl(unpack(hl))
+    M.set_hl(unpack(hl))
   end
 end
 
@@ -192,20 +189,20 @@ end
 -----------------------------------------------------------------------------//
 -- Color Scheme {{{1
 -----------------------------------------------------------------------------//
-vim.g.doom_one_telescope_higlights = false
+-- vim.g.doom_one_telescope_higlights = false
 vim.cmd "colorscheme doom-one"
 
 ---------------------------------------------------------------------------------
 -- Plugin highlights
 ---------------------------------------------------------------------------------
 local function plugin_highlights()
-  M.get_hl("TelescopePathSeparator", { guifg = "#51AFEF" })
-  M.get_hl("TelescopeQueryFilter", { link = "IncSearch" })
+  M.set_hl("TelescopePathSeparator", { guifg = "#51AFEF" })
+  M.set_hl("TelescopeQueryFilter", { link = "IncSearch" })
 
-  M.get_hl("CompeDocumentation", { link = "Pmenu" })
+  M.set_hl("CompeDocumentation", { link = "Pmenu" })
 
-  M.get_hl("BqfPreviewBorder", { guifg = "#2f628e" })
-  M.get_hl("ExchangeRegion", { link = "Search" })
+  M.set_hl("BqfPreviewBorder", { guifg = "#2f628e" })
+  M.set_hl("ExchangeRegion", { link = "Search" })
 
   if e0.plugin_installed("conflict-marker.vim") then
     M.all {
@@ -321,7 +318,7 @@ local function set_sidebar_highlight()
     { "PanelSt", { guibg = st_color }}
   }
   for _, grp in ipairs(hls) do
-    M.get_hl(unpack(grp))
+    M.set_hl(unpack(grp))
   end
 end
 
@@ -350,7 +347,7 @@ local function colorscheme_overrides()
       { "WhichKeyFloat", { link = "PanelBackground" }},
       { "Cursor", { gui = "NONE" }},
       { "CursorLine", { guibg = "NONE" }},
-      -- { "CursorLineNr", { guifg = "#51AFEF", guibg = "NONE" }},
+      { "CursorLineNr", { guifg = "#51AFEF", guibg = "NONE" }},
       { "CursorLineNr", { guifg = keyword_fg}},
       { "Pmenu", {  guifg = "lightgray", blend = 6 }},
       { "TSVariable", { guifg = "NONE" }},
@@ -359,6 +356,7 @@ local function colorscheme_overrides()
       -- { "TelescopeMatching", { guifg = "Search", force = true}}
     }
   elseif vim.g.colors_name == "onedark" then
+    local comment_fg = M.get_hl("Comment", "fg")
     M.all{
       { "LspDiagnosticsFloatingWarning", { guibg = "NONE" }},
       { "LspDiagnosticsFloatingError", { guibg = "NONE" }},
