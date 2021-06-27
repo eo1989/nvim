@@ -51,14 +51,9 @@ return function()
       frecency = {
         workspaces = {
           ["conf"] = vim.env.DOTFILES,
-          -- ["project"] = vim.env.PROJECTS_DIR,
+          ["project"] = vim.env.PROJECTS_DIR,
           -- ["wiki"] = vim.g.wiki_path
         }
-      },
-      fzf_writer = {
-        minimum_grep_characters = 2,
-        minimum_files_characters = 2,
-        use_highlighter = true
       },
       fzf = {
         override_generic_sorter = true, -- override the generic sorter
@@ -90,8 +85,8 @@ return function()
     }
   },
 }
-  telescope.load_extension("fzf")
-  telescope.load_extension("cheat")
+  telescope.load_extension "fzf"
+  telescope.load_extension "cheat"
   -- telescope.load_extension("fd")
   -- telescope.load_extension("trouble")
   --- NOTE: this must be required after setting up telescope
@@ -99,13 +94,13 @@ return function()
   --- from the setup call
   local builtins = require("telescope.builtin")
 
-  local function dotfiles()
+  --[[ local function dotfiles()
     builtins.find_files {
       prompt_title = "~ dotfiles ~",
       cwd = vim.g.dotfiles,
       file_ignore_patterns = {".git/.*", "dotdot/.*"}
     }
-  end
+  end ]]
 
   local function nvim_config()
     builtins.find_files {
@@ -120,17 +115,17 @@ return function()
   ---@param path string
   ---@param target string
   ---@return boolean
-  local function is_within(path, target)
+  --[[ local function is_within(path, target)
     target = target or vim.fn.expand("%:p")
     if not target then
       return false
     end
     return target:match(vim.fn.fnamemodify(path, ":p"))
-  end
+  end ]]
 
   ---General finds files function which changes the picker depending
   ---on the current buffers path.
-  local function files()
+  --[[ local function files()
     if is_within(vim.g.vim_dir) then
       nvim_config()
     elseif is_within(vim.g.dotfiles) then
@@ -142,7 +137,7 @@ return function()
       -- otherwise, use :Telescope find_files
       builtins.find_files()
     end
-  end
+  end ]]
 
   local function frecency()
     telescope.extensions.frecency.frecency(
@@ -155,27 +150,22 @@ return function()
     )
   end
 
-  require("which-key").register(
-    {
-      ["<c-p>"] = {files, "open project files"},
-      ["<leader>f"] = {
-        name = "+telescope",
-        a = {builtins.builtin, "builtins"},
-        b = {builtins.git_branches, "branches"},
-        c = {builtins.git_commits, "commits"},
-        d = {dotfiles, "dotfiles"},
-        f = {builtins.find_files, "files"},
-        o = {builtins.buffers, "buffers"},
-        m = {builtins.man_pages, "man pages"},
-        h = {frecency, "history"},
-        n = {nvim_config, "nvim config"},
-        r = {builtins.reloader, "module reloader"},
-        w = {builtins.lsp_dynamic_workspace_symbols, "workspace symbols", silent = false},
-        ["?"] = {builtins.help_tags, "help"}
-      },
-      ["<leader>c"] = {
-        d = {builtins.lsp_workspace_diagnostics, "telescope: workspace diagnostics"}
-      },
-    }
-  )
+	require("which-key").register {
+		["<leader>f"] = {
+			name = "+telescope",
+			a = {builtins.builtin, "builtins"},
+			b = {builtins.git_branches, "branches"},
+			-- c = {builtins.git_commits, "commits"},
+			m = {builtins.man_pages, "man pages"},
+			h = {frecency, "history"},
+			n = {nvim_config, "nvim config"},
+			r = {builtins.reloader, "module reloader"},
+			w = {builtins.lsp_dynamic_workspace_symbols, "workspace symbols", silent = false},
+			["?"] = {builtins.help_tags, "help"}
+		},
+		["<leader>c"] = {
+			d = {builtins.lsp_workspace_diagnostics, "telescope: workspace diagnostics"}
+		},
+	}
+
 end

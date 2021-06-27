@@ -74,6 +74,32 @@ require("packer").startup {
     -- use_rocks "penlight"
 
 
+		use "kyazdani42/nvim-web-devicons"
+    use {"folke/which-key.nvim", config = conf "whichkey"}
+
+    -- FIXME: If nvim-web-devicons is specified before
+    -- it is used this errors that it is used twice
+    use {
+      "folke/trouble.nvim",
+      keys = {"<leader>ld"},
+      cmd = {"TroubleToggle"},
+      requires = "nvim-web-devicons",
+      config = function()
+        require("which-key").register(
+          {
+            ["<leader>ld"] = {"<cmd>TroubleToggle lsp_workspace_diagnostics<CR>", "trouble: toggle"},
+            ["<leader>lr"] = {"<cmd>TroubleToggle lsp_references<cr>", "trouble: lsp references"}
+          }
+        )
+        require("e0.highlights").all {
+          {"TroubleNormal", {link = "PanelBackground"}},
+          {"TroubleText", {link = "PanelBackground"}},
+          {"TroubleIndent", {link = "PanelVertSplit"}},
+          {"TroubleFoldIcon", {guifg = "yellow", gui = "bold"}}
+        }
+        require("trouble").setup {auto_close = true, auto_preview = true}
+      end,
+    }
     use {"ahmedkhalf/jupyter-nvim"}
     use {"bfredl/nvim-ipy"}
 
@@ -85,26 +111,6 @@ require("packer").startup {
       end,
       }
 
-    use {
-      "rmagatti/goto-preview",
-      config = function()
-        require("goto-preview").setup {
-          default_mappings = true,
-					post_open_hook = function(buffer, _)
-						e0.nnoremap("q", "<Cmd>q<CR>", {buffer = buffer, nowait = true})
-					end,
-        }
-      end,
-      }
-
-
-    use {
-        "folke/todo-comments.nvim"
-          -- requires = "plenary.nvim",
-          -- config = function()
-            -- require("todo-comments").setup()
-          -- end,
-				}
 
     use {
       "nvim-telescope/telescope.nvim",
@@ -172,36 +178,12 @@ require("packer").startup {
         config = conf "indentline"
       }
 
-			use "kyazdani42/nvim-web-devicons"
 			use {
 				"kyazdani42/nvim-tree.lua",
 				config =  conf "nvim-tre3"
 				-- requires = "nvim-web-devicons"
 			}
 
-    -- FIXME: If nvim-web-devicons is specified before
-    -- it is used this errors that it is used twice
-    use {
-      "folke/trouble.nvim",
-      keys = {"<leader>ld"},
-      cmd = {"TroubleToggle"},
-      requires = "nvim-web-devicons",
-      config = function()
-        require("which-key").register(
-          {
-            ["<leader>ld"] = {"<cmd>TroubleToggle lsp_workspace_diagnostics<CR>", "trouble: toggle"},
-            ["<leader>lr"] = {"<cmd>TroubleToggle lsp_references<cr>", "trouble: lsp references"}
-          }
-        )
-        require("e0.highlights").all {
-          {"TroubleNormal", {link = "PanelBackground"}},
-          {"TroubleText", {link = "PanelBackground"}},
-          {"TroubleIndent", {link = "PanelVertSplit"}},
-          {"TroubleFoldIcon", {guifg = "yellow", gui = "bold"}}
-        }
-        require("trouble").setup {auto_close = true, auto_preview = true}
-      end,
-    }
 
     -- use "kyazdani42/nvim-web-devicons"
 
@@ -311,6 +293,26 @@ require("packer").startup {
         e0.smap("<c-j>", [[vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>']], opts)
       end,
     }
+    use {
+      "rmagatti/goto-preview",
+      config = function()
+        require("goto-preview").setup {
+          default_mappings = true,
+					post_open_hook = function(buffer, _)
+						e0.nnoremap("q", "<Cmd>q<CR>", {buffer = buffer, nowait = true})
+					end,
+        }
+      end,
+      }
+
+
+    use {
+        "folke/todo-comments.nvim"
+          -- requires = "plenary.nvim",
+          -- config = function()
+            -- require("todo-comments").setup()
+          -- end,
+				}
 		-- use {"hrsh7th/vim-vsnip-integ"}
 
     use {"kevinhwang91/nvim-bqf"}
@@ -379,11 +381,12 @@ require("packer").startup {
       end,
     }
 
-    use {"folke/which-key.nvim", config = conf "whichkey"}
 
     use {
       "iamcco/markdown-preview.nvim",
-      run = ":call mkdp#util#install()",
+      run = function()
+				vim.fn["mkdp#util#install"]()
+			end,
       -- ft = {"markdown"},
       config = function()
         vim.g.mkdp_auto_start = 0

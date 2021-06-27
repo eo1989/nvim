@@ -3,14 +3,14 @@
 return function()
 -- local function setup()
   vim.g.nvim_tree_icons = {
-    default = " ",
+    default = "",
     git = {
-      unstaged = " ",
-      staged = " ",
-      unmerged = " ",
-      renamed = " ",
-      untracked = " ",
-      deleted = " "
+      unstaged = "",
+      staged = "",
+      unmerged = "",
+      renamed = "",
+      untracked = "",
+      deleted = ""
     }
   }
 

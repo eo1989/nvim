@@ -21,11 +21,11 @@ local call = vim.api.nvim_call_function
 --- jump to prev/next snippet's placeholder
 _G.__tab_complete = function()
   if vim.fn.pumvisible() == 1 then
-    return t("<C-n>")
-  elseif call("vsnip#available", {1}) == 1 then
-    return t("<Plug>(vsnip-expand-or-jump)")
+    return t "<C-n>"
+  elseif vim.fn["vsnip#available"](1)  == 1 then
+    return t "<Plug>(vsnip-expand-or-jump)"
   elseif check_back_space() then
-    return t("<Tab>")
+    return t "<Tab>"
   else
     return vim.fn["compe#complete"]()
   end
@@ -33,11 +33,11 @@ end
 
 _G.__s_tab_complete = function()
   if vim.fn.pumvisible() == 1 then
-    return t("<C-p>")
-  elseif call("vsnip#jumpable", {-1}) == 1 then
-    return t("<Plug>(vsnip-jump-prev)")
+    return t "<C-p>"
+  elseif vim.fn["vsnip#jumpable"](-1) == 1 then
+    return t "<Plug>(vsnip-jump-prev)"
   else
-    return t("<S-Tab>")
+    return t "<S-Tab>"
   end
 end
 
@@ -51,10 +51,10 @@ return function()
     autocomplete  = true,
     source = {
       path       = true,
-      buffer     = {{ kind = " " }, { priority = 4 }},
+      buffer     = {{ kind = " " }, { priority = 1 }},
       -- snip       = { kind = " " },
       vsnip      = {{ kind = " " }, { priority = 5 }},
-      nvim_lsp   = { priority = 99 },
+      nvim_lsp   = { priority = 101 },
       nvim_lua   = {{ priority = 99 }, { filetypes = "lua" }},
       tabnine    = false, -- {priority = 1200}
       treesitter = false,
