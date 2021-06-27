@@ -375,9 +375,4 @@ e0.augroup(
       command = "if 5000 < line('$') | syntax sync minlines=200 | endif"
     }
   }
-);
-}
-
--- end
-
--- return autocmd
+)
