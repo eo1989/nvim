@@ -39,22 +39,22 @@
 vim.g.open_command = vim.loop.os_uname() == "Darwin" and "open"
 
 -- or "xdg-open"
-vim.g.dotfiles = vim.env.DOTFILES or vim.cmd [[lua os.getenv "HOME"]]
+vim.g.dotfiles = vim.env.DOTFILES or "~"
 vim.g.vim_dir = vim.g.dotfiles .. "/.config/nvim"
 
 
 -- vim.g.mapleader = " "
 -- vim.g.maplocalleader = ","
 
-require "e0.globals"
+require"e0.globals"
+require'e0.mappings'
 require'e0.settings'.setup()
-require'e0.mappings'.setup()
 -- require "e0.highlights"
-require "e0.plugins"
-require "e0.statusline"
-require "e0.numbers"
-require "e0.quickfix"
-require'e0.autocmd'.setup()
+require"e0.plugins"
+require"e0.statusline"
+require"e0.numbers"
+require"e0.quickfix"
+require'e0.autocmd'
 
 
 

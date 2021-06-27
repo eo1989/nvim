@@ -79,18 +79,9 @@ return function()
 
   inoremap("<C-f>", "compe#scroll({ 'delta': +4 })", opts)
   inoremap("<C-d>", "compe#scroll({ 'delta': -4 })", opts)
-
-  e0.completion_confirm = function()
-    local npairs = require "nvim-autopairs"
-    if vim.fn.pumvisible() ~= 0 then
-      if vim.fn.complete_info()["selected"] ~= -1 then
-        return vim.fn["compe#confirm"](npairs.esc "<CR>")
-      else
-        return npairs.esc "<CR>"
-      end
-    else
-      return npairs.autopairs_cr()
-    end
-  end
-  inoremap("<tab>", "v:lua.e0.completion_confirm()", { expr = true, silent = false })
+	
+	require("nvim-autopairs.completion.compe").setup{
+		map_cr = true, -- map <CR> on insert mode
+		map_complete = true, -- it will auto insert '(' after select function or method item
+	}
 end

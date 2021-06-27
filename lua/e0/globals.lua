@@ -48,7 +48,7 @@ if vim.notify then
   --@param opts Dictionary with optional options (timeout, etc)
   vim.notify = function(message, log_level, _)
     assert(message, "The message key of vim.notify should be a string")
-    e0.notify(message, { timeout = 5000, log_level = log_level })
+    e0.notify(message, { timeout = 4000, log_level = log_level })
   end
 end
 

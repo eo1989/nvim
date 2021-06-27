@@ -44,18 +44,17 @@ e0.augroup("PackerSetupInit", {
 e0.nnoremap("<leader>ps", [[<Cmd>PackerSync<CR>]])
 e0.nnoremap("<leader>pc", [[<Cmd>PackerClean<CR>]])
 
----@param path string
-local function dev(path)
-  return os.getenv "HOME".."/dev/"..path
-end
+-- local function dev(path)
+--   return os.getenv "HOME".."/dev/"..path
+-- end
 
-local function developing()
-  return vim.env.DEVELOPING ~= nil
-end
+-- local function developing()
+--   return vim.env.DEVELOPING ~= nil
+-- end
 
-local function not_developing()
-  return not vim.env.DEVELOPING
-end
+-- local function not_developing()
+--   return not vim.env.DEVELOPING
+-- end
 
 ---Require a plugin config
 ---@param name string
@@ -80,23 +79,53 @@ require("packer").startup {
 
     use {
       "RRethy/vim-illuminate",
-      cmd = "<cmd>IlluminationEnable<cr>",
-      setup = function()
+      cmd = ":IlluminationEnable<cr>",
+      config = function()
         vim.g.Illuminate_ftblacklist = {'NvimTree'}
-      end
+      end,
       }
 
     use {
       "rmagatti/goto-preview",
       config = function()
         require("goto-preview").setup {
-          default_mappings = true
+          default_mappings = true,
+					post_open_hook = function(buffer, _)
+						e0.nnoremap("q", "<Cmd>q<CR>", {buffer = buffer, nowait = true})
+					end,
         }
-      end
+      end,
       }
 
-use {
-      "christoomey/vim-tmux-navigator",
+
+    use {
+        "folke/todo-comments.nvim"
+          -- requires = "plenary.nvim",
+          -- config = function()
+            -- require("todo-comments").setup()
+          -- end,
+				}
+
+    use {
+      "nvim-telescope/telescope.nvim",
+      event = "CursorHold",
+      config = conf "telescop3",
+      requires = {
+        "nvim-lua/popup.nvim",
+        {"nvim-telescope/telescope-fzf-native.nvim", run = "make"},
+        {
+          "nvim-telescope/telescope-frecency.nvim",
+          requires = "tami5/sql.nvim",
+          after = "telescope.nvim"
+        }
+      }
+    }
+
+    use "nvim-telescope/telescope-cheat.nvim"
+
+		use {
+			"christoomey/vim-tmux-navigator",
+				opt = true,
         config = function()
           vim.g.tmux_navigator_no_mappings = 1
           e0.nnoremap("<C-H>", "<cmd>TmuxNavigatorLeft<CR>")
@@ -137,260 +166,18 @@ use {
       end,
     }
 
-
-    use {
-      "nvim-telescope/telescope.nvim",
-      event = "CursorHold",
-      config = conf "telescop3",
-      requires = {
-        "nvim-lua/popup.nvim",
-        "nvim-lua/plenary.nvim",
-        "nvim-telescope/telescope-fzf-writer.nvim",
-        {"nvim-telescope/telescope-fzf-native.nvim", run = "make"},
-        {
-          "nvim-telescope/telescope-frecency.nvim",
-          requires = "tami5/sql.nvim",
-          after = "telescope.nvim"
-        }
-      }
-    }
-
-    use "nvim-telescope/telescope-cheat.nvim"
-    use "kyazdani42/nvim-web-devicons"
-
-    use "folke/lua-dev.nvim"
-    use "nanotee/luv-vimdocs"
-    use "milisims/nvim-luaref"
-    use "bfredl/nvim-luadev"
-    use "tjdevries/nlua.nvim"
-    -- use "euclidianAce/BetterLua.vim"
-
-    use "pechorin/any-jump.vim"
-    use "neovimhaskell/haskell-vim"
-    use "cespare/vim-toml"
-    use "elzr/vim-json"
-    use "JuliaEditorSupport/julia-vim"
-    use "monaqa/dial.nvim"
-    use "tjdevries/astronauta.nvim"
-
-    use {
-      "andymass/vim-matchup",
-      setup = function()
-        vim.g.matchup_matchparen_offscreen = {
-          method = "popup",
-          fullwidth = true,
-          highlight = "Normal",
-          }
-      end,
-      }
-
-    use {
-      "editorconfig/editorconfig-vim",
-        config = function()
-          vim.g.EditorConfig_exclude_patterns = {"fugitive://.*", "scp://.*"}
-          vim.g.EditorConfig_max_line_indicator = "none"
-          vim.g.EditorConfig_preserve_formatoptions = 1
-        end
-      }
-
-  use {
-      "neovim/nvim-lspconfig",
-      config = conf "lspconfigg",
-      requires = {
-          "nvim-lua/lsp-status.nvim",
-          config = function()
-            local status = require("lsp-status")
-              status.config {
-                indicator_hint = "",
-                indicator_info = "",
-                indicator_errors = "✗",
-                indicator_warnings = "",
-                status_symbol = " "
-              }
-            status.register_progress()
-          end
-        }
-    }
-  use {
-      "kosayoda/nvim-lightbulb",
-        config = function()
-          vim.api.nvim_command("highlight LightBulbVirtualText guifg=red")
-          e0.augroup("NvimLightbulb", {
-            {
-              events =  {"CursorHold", "CursorHoldI"},
-              targets = {"*"},
-              command = function()
-                require("nvim-lightbulb").update_lightbulb {
-                  sign = {enabled = false},
-                  virtual_text = {enabled = true}
-                    }
-                end,
-              },
-            }
-          )
-          end,
-          }
-
-  use {
-      "glepnir/lspsaga.nvim",
-        config = conf "lspsagah"
-      }
-
-  use {
-      "kabouzeid/nvim-lspinstall",
-        config = function()
-          require("lspinstall").post_install_hook = function()
-            e0.lsp.setup_servers()
-            vim.cmd("bufdo e")
-          end
-        end
-      }
-
-    use "ray-x/lsp_signature.nvim"
-
-    use {
-      "hrsh7th/nvim-compe",
-        event = "InsertEnter",
-        config = conf("comp3")
-      }
-
-      use {
-        "hrsh7th/vim-vsnip-integ"
-      }
-
-    use {
-      "hrsh7th/vim-vsnip",
-      event = "InsertEnter",
-      requires = {
-        "rafamadriz/friendly-snippets",
-        "hrsh7th/nvim-compe"
-      },
-      config = function()
-        vim.g.vsnip_snippet_dir = vim.g.vim_dir .. "/snippets/textmate"
-        local opts = {expr = true}
-        e0.imap("<c-l>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<c-l>'", opts)
-        e0.smap("<c-l>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<c-l>'", opts)
-        e0.imap("<c-h>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-prev)' : '<c-h>'", opts)
-        e0.smap("<c-h>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-prev)' : '<c-h>'", opts)
-        e0.xmap("<c-j>", [[vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>']], opts)
-        e0.imap("<c-j>", [[vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>']], opts)
-        e0.smap("<c-j>", [[vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>']], opts)
-      end
-    }
-
-    use {"kevinhwang91/nvim-bqf"}
-        -- config = conf "bQf"
-
-
-    use {
-      "arecarn/vim-fold-cycle",
-      config = function()
-        vim.g.fold_cycle_default_mapping = 0
-        e0.nmap("<BS>", "<Plug>(fold-cycle-close)")
-      end
-    }
-
-    use {
-      "windwp/nvim-autopairs",
-      config = function()
-        require("nvim-autopairs").setup {
-          close_triple_quotes = true,
-          check_ts = false
-          }
-        end
-      }
-
-    use "psliwka/vim-smoothie"
-
-    use {
-      "itchyny/vim-highlighturl"
-      -- config = function()
-        -- vim.g.highlighturl_guifg = require("e0.highlights").get_hl("Keyword", "fg")
-      -- end
-    }
-
-    -- NOTE: marks are currently broken in neovim i.e. deleted marks are resurrected on restarting nvim
-    use {
-      "mbbill/undotree",
-      cmd = "UndotreeToggle",
-      keys = "<leader>u",
-      config = function()
-        vim.g.undotree_TreeNodeShape = "◦" -- Alternative: '◉'
-        vim.g.undotree_SetFocusWhenToggle = 1
-        require("which-key").register{
-          ["<leader>u"] = {"<cmd>UndotreeToggle<CR>", "toggle undotree"}}
-      end
-    }
-    use {
-      "vim-test/vim-test",
-      cmd = {"TestFile", "TestNearest", "TestSuite"},
-      keys = {"<localleader>tf", "<localleader>tn", "<localleader>ts"},
-      setup = function()
-        vim.cmd [[
-          let test#strategy = "neovim"
-          let test#neovim#term_position = "vert botright"
-        ]]
-        require("which-key").register(
-          {
-            t = {
-              name = "+vim-test",
-              f = {"<cmd>TestFile<CR>", "test: file"},
-              n = {"<cmd>TestNearest<CR>", "test: nearest"},
-              s = {"<cmd>TestSuite<CR>", "test: suite"}
-            }
-          },
-          {prefix = "<localleader>"}
-        )
-      end
-    }
-
-    use {"folke/which-key.nvim", config = conf "whichkey"}
-
-    use {
-      "iamcco/markdown-preview.nvim",
-      run = ":call mkdp#util#install()",
-      -- ft = {"markdown"},
-      setup = function()
-        vim.g.mkdp_auto_start = 0
-        vim.g.mkdp_auto_close = 1
-      end
-    }
-
-    use {
-      "junegunn/fzf",
-        run = function()
-          vim.fn['fzf#install']()
-        end
-    }
-
-    use {
-      "junegunn/fzf.vim",
-      requires = {
-        "junegunn/fzf"
-    --    run = 'cd ~/.fzf && ./install --all',
-        },
-      }
-
-    use {
-      "norcalli/nvim-colorizer.lua",
-        cmd = "ColorizerToggle",
-        config = function()
-          require("colorizer").setup(
-          {"*"},
-          {
-            RGB = true,
-            mode = "foreground"
-          })
-        end,
-      }
-
-
     use {
       "lukas-reineke/indent-blankline.nvim",
         branch = "lua",
         config = conf "indentline"
       }
 
+			use "kyazdani42/nvim-web-devicons"
+			use {
+				"kyazdani42/nvim-tree.lua",
+				config =  conf "nvim-tre3"
+				-- requires = "nvim-web-devicons"
+			}
 
     -- FIXME: If nvim-web-devicons is specified before
     -- it is used this errors that it is used twice
@@ -413,35 +200,220 @@ use {
           {"TroubleFoldIcon", {guifg = "yellow", gui = "bold"}}
         }
         require("trouble").setup {auto_close = true, auto_preview = true}
-      end
+      end,
+    }
+
+    -- use "kyazdani42/nvim-web-devicons"
+
+    -- use "euclidianAce/BetterLua.vim"
+
+    use "pechorin/any-jump.vim"
+    use "neovimhaskell/haskell-vim"
+    use "cespare/vim-toml"
+    use "elzr/vim-json"
+    use "JuliaEditorSupport/julia-vim"
+    use "monaqa/dial.nvim"
+    use "tjdevries/astronauta.nvim"
+
+    use {
+      "andymass/vim-matchup",
+				config = function()
+					vim.g.matchup_matchparen_offscreen = {
+						method = "popup",
+						fullwidth = true,
+						highlight = "Normal",
+						}
+				end,
+				}
+
+    use {
+      "editorconfig/editorconfig-vim",
+        config = function()
+          vim.g.EditorConfig_exclude_patterns = {"fugitive://.*", "scp://.*"}
+          vim.g.EditorConfig_max_line_indicator = "none"
+          vim.g.EditorConfig_preserve_formatoptions = 1
+        end,
+      }
+			use "folke/lua-dev.nvim"
+			use "nanotee/luv-vimdocs"
+			use "milisims/nvim-luaref"
+			use "bfredl/nvim-luadev"
+			use "tjdevries/nlua.nvim"
+
+			use {
+				"kabouzeid/nvim-lspinstall",
+				config = function()
+					require("lspinstall").post_install_hook = function()
+						e0.lsp.setup_servers()
+						vim.cmd("bufdo e")
+					end
+				end,
+			}
+
+  use {
+      "neovim/nvim-lspconfig",
+			-- event = "BufReadPre",
+      config = conf "lspconfigg",
+      requires = {
+				{
+          "nvim-lua/lsp-status.nvim",
+          config = function()
+            local status = require("lsp-status")
+              status.config {
+                indicator_hint = "",
+                indicator_info = "",
+                indicator_errors = "✗",
+                indicator_warnings = "",
+                status_symbol = " "
+              }
+            status.register_progress()
+          end,
+        },
+				{
+					"kosayoda/nvim-lightbulb",
+						config = function()
+							e0.augroup("NvimLightbulb", {
+								{
+									events =  {"CursorHold", "CursorHoldI"},
+									targets = {"*"},
+									command = function()
+										require("nvim-lightbulb").update_lightbulb {
+											sign = {enabled = false},
+											virtual_text = {enabled = true}
+												}
+										end,
+									},
+								})
+						end,
+          },
+					{"glepnir/lspsaga.nvim", opt = false, config = conf "lspsagah"},
+				},
+		}
+
+    use "ray-x/lsp_signature.nvim"
+
+    use {"hrsh7th/nvim-compe", config = conf "comp3"}
+
+
+    use {
+      "hrsh7th/vim-vsnip",
+      -- event = "InsertEnter",
+      requires = {"rafamadriz/friendly-snippets", "hrsh7th/nvim-compe"},
+      config = function()
+        vim.g.vsnip_snippet_dir = vim.g.vim_dir .. "/snippets/textmate"
+        local opts = {expr = true}
+        e0.imap("<c-l>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<c-l>'", opts)
+        e0.smap("<c-l>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<c-l>'", opts)
+        e0.imap("<c-h>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-prev)' : '<c-h>'", opts)
+        e0.smap("<c-h>", "vsnip#jumpable(1) ? '<Plug>(vsnip-jump-prev)' : '<c-h>'", opts)
+        e0.xmap("<c-j>", [[vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>']], opts)
+        e0.imap("<c-j>", [[vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>']], opts)
+        e0.smap("<c-j>", [[vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>']], opts)
+      end,
+    }
+		-- use {"hrsh7th/vim-vsnip-integ"}
+
+    use {"kevinhwang91/nvim-bqf"}
+        -- config = conf "bQf"
+
+
+    use {
+      "arecarn/vim-fold-cycle",
+      config = function()
+        vim.g.fold_cycle_default_mapping = 0
+        e0.nmap("<BS>", "<Plug>(fold-cycle-close)")
+      end,
     }
 
     use {
-        "folke/todo-comments.nvim",
-          requires = "nvim-lua/plenary.nvim",
-          setup = function()
-            require("todo-comments").setup{}
-          end
+      "windwp/nvim-autopairs",
+      config = function()
+        require("nvim-autopairs").setup {
+          close_triple_quotes = true,
+          check_ts = false
+          }
+        end,
       }
 
+    use "psliwka/vim-smoothie"
+
     use {
-      "kyazdani42/nvim-tree.lua",
-        requires = "kyazdani42/nvim-web-devicons",
-        config =  conf "nvim-tre3"
+      "itchyny/vim-highlighturl"
+				-- config = function()
+				-- 	vim.g.highlighturl_guifg = require("e0.highlights").get_hl("Keyword", "fg")
+				-- end,
+			}
+
+    -- NOTE: marks are currently broken in neovim i.e. deleted marks are resurrected on restarting nvim
+    use {
+      "mbbill/undotree",
+      cmd = "UndotreeToggle",
+      keys = "<leader>u",
+      config = function()
+        vim.g.undotree_TreeNodeShape = "◦" -- Alternative: '◉'
+        vim.g.undotree_SetFocusWhenToggle = 1
+        require("which-key").register{
+          ["<leader>u"] = {"<cmd>UndotreeToggle<CR>", "toggle undotree"}}
+      end,
+    }
+    use {
+      "vim-test/vim-test",
+      cmd = {"TestFile", "TestNearest", "TestSuite"},
+      keys = {"<localleader>tf", "<localleader>tn", "<localleader>ts"},
+      setup = function()
+        vim.cmd [[
+          let test#strategy = "neovim"
+          let test#neovim#term_position = "vert botright"
+        ]]
+        require("which-key").register(
+          {
+            t = {
+              name = "+vim-test",
+              f = {"<cmd>TestFile<CR>", "test: file"},
+              n = {"<cmd>TestNearest<CR>", "test: nearest"},
+              s = {"<cmd>TestSuite<CR>", "test: suite"}
+            }
+          },
+          {prefix = "<localleader>"}
+        )
+      end,
+    }
+
+    use {"folke/which-key.nvim", config = conf "whichkey"}
+
+    use {
+      "iamcco/markdown-preview.nvim",
+      run = ":call mkdp#util#install()",
+      -- ft = {"markdown"},
+      config = function()
+        vim.g.mkdp_auto_start = 0
+        vim.g.mkdp_auto_close = 1
+      end,
+    }
+
+    use {
+      "junegunn/fzf",
+        run = function()
+          vim.fn['fzf#install']()
+        end,
+    }
+
+    use {"junegunn/fzf.vim", requires = {"junegunn/fzf"},}
+
+    use {
+      "norcalli/nvim-colorizer.lua",
+        cmd = "ColorizerToggle",
+        config = function()
+          require("colorizer").setup(
+          {"*"},
+          {
+            RGB = false,
+            mode = "foreground"
+          })
+        end,
       }
-    -- use {
-    --   "vhyrro/neorg",
-    --   opt = true,
-    --   requires = {"nvim-lua/plenary.nvim"},
-    --   config = function()
-    --     require("neorg").setup {
-    --       load = {
-    --         ["core.defaults"] = {}, -- Load all the default modules
-    --         ["core.norg.concealer"] = {} -- Enhances the text editing experience by using icons
-    --       }
-    --     }
-    --   end
-    -- }
+
+
 
    use "tpope/vim-eunuch"
    use "tpope/vim-repeat"
@@ -452,9 +424,11 @@ use {
        config = function()
          e0.xmap("s", "<Plug>VSurround")
          e0.xmap("s", "<Plug>VSurround")
-      end
+      end,
       }
+
   use {"kassio/neoterm"}
+
    -- use {
    --    "tpope/vim-abolish",
    --    config = function()
@@ -466,10 +440,10 @@ use {
    --  }
 
     use "NTBBloodbath/doom-one.vim"
-    -- use "romgrk/doom-one.nvim"
     use "monsonjeremy/onedark.nvim"
-    use "Th3Whit3Wolf/one-nvim"
+    use {"Th3Whit3Wolf/one-nvim", opt = true }
     use "glepnir/zephyr-nvim"
+		use "marko-cerovac/material.nvim"
     use {"ChristianChiarulli/nvcode-color-schemes.vim"}
 
 
@@ -483,13 +457,13 @@ use {
       "nvim-treesitter/playground",
         requires = "nvim-treesitter",
         after = "nvim-treesitter",
-      keys = "<leader>E",
-      cmd = {"TSPlaygroundToggle", "TSHighlightCapturesUnderCursor"},
-      config = function()
-        require("which-key").register {
-          ["<leader>E"] = {
-            "<Cmd>TSHighlightCapturesUnderCursor<CR>",
-            "treesitter: highlight cursor group"
+				keys = "<leader>E",
+				cmd = {"TSPlaygroundToggle", "TSHighlightCapturesUnderCursor"},
+				config = function()
+					require("which-key").register {
+						["<leader>E"] = {
+							"<Cmd>TSHighlightCapturesUnderCursor<CR>",
+							"treesitter: highlight cursor group"
             }
           }
       end,
@@ -510,19 +484,14 @@ use {
         end,
       }
 
-    -- use {
-    --   "lewis6991/spellsitter.nvim",
-    --   config = function()
-    --     require("spellsitter").setup {hl = "SpellBad", captures = {"comment"}}
-    --   end
-    -- }
 
     use "plasticboy/vim-markdown"
     use "mtdl9/vim-log-highlighting"
 
     use {
       "lewis6991/gitsigns.nvim",
-      event = "BufRead",
+      requires = "plenary.nvim",
+      -- event = "BufRead",
       config = conf "gitsign5"
     }
 
@@ -578,7 +547,7 @@ use {
           },
           {prefix = "<localleader>"}
         )
-      end
+      end,
     }
 
     use {
@@ -589,14 +558,14 @@ use {
         e0.nmap("cw", "ce")
         e0.nmap("dW", "dE")
         e0.nmap("cW", "cE")
-     end
+     end,
     }
 
     use {
       "b3nj5m1n/kommentary",
       config = function()
         require("kommentary.config").configure_language("lua", {prefer_single_line_comments = true})
-      end
+      end,
     }
 
 
@@ -614,7 +583,7 @@ use {
             e0.omap("ax", "<Plug>(textobj-comment-a)")
             e0.xmap("ix", "<Plug>(textobj-comment-i)")
             e0.omap("ix", "<Plug>(textobj-comment-i)")
-          end
+          end,
         }
       }
     }
@@ -622,18 +591,18 @@ use {
     use {
       "phaazon/hop.nvim",
       keys = {{"n", "s"}},
-      setup = function()
+      config  = function()
         local hop = require("hop")
         -- remove h,j,k,l from hops list of keys
         hop.setup {keys = "etovxqpdygfbzcisuran"}
         e0.nnoremap("s", hop.hint_char1)
-      end
+      end,
     }
     use {
       "norcalli/nvim-terminal.lua",
       config = function()
         require("terminal").setup()
-      end
+      end,
     }
 
     use {"rafcamlet/nvim-luapad"}
@@ -660,8 +629,7 @@ use {
           end,
         }
 
-        local lazygit =
-          require("toggleterm.terminal").Terminal:new {
+        local lazygit = require("toggleterm.terminal").Terminal:new {
           cmd = "lazygit",
           dir = "git_dir",
           hidden = true,
@@ -672,7 +640,7 @@ use {
               vim.api.nvim_buf_del_keymap(term.bufnr, "t", "kj")
               vim.api.nvim_buf_del_keymap(term.bufnr, "t", "<esc>")
             end
-         end
+         end,
         }
 
         local function toggle()
@@ -693,7 +661,7 @@ use {
     },
     profile = {
       enable = true,
-      threshold = 1
+      threshold = 0
     }
   }
 }
