@@ -184,11 +184,6 @@ require("packer").startup {
 				-- requires = "nvim-web-devicons"
 			}
 
-
-    -- use "kyazdani42/nvim-web-devicons"
-
-    -- use "euclidianAce/BetterLua.vim"
-
     use "pechorin/any-jump.vim"
     use "neovimhaskell/haskell-vim"
     use "cespare/vim-toml"
