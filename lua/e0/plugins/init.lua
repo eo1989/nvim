@@ -227,6 +227,15 @@ require("packer").startup {
 				end,
 			}
 
+    use {
+      "windwp/nvim-autopairs",
+      config = function()
+        require("nvim-autopairs").setup {
+          close_triple_quotes = true,
+          check_ts = false
+          }
+        end,
+      }
   use {
       "neovim/nvim-lspconfig",
 			-- event = "BufReadPre",
@@ -269,7 +278,7 @@ require("packer").startup {
 
     use "ray-x/lsp_signature.nvim"
 
-    use {"hrsh7th/nvim-compe", config = conf "comp3"}
+    use {"hrsh7th/nvim-compe", module = "compe", config = conf "comp3"}
 
 
     use {
@@ -322,15 +331,6 @@ require("packer").startup {
       end,
     }
 
-    use {
-      "windwp/nvim-autopairs",
-      config = function()
-        require("nvim-autopairs").setup {
-          close_triple_quotes = true,
-          check_ts = false
-          }
-        end,
-      }
 
     use "psliwka/vim-smoothie"
 
@@ -382,21 +382,23 @@ require("packer").startup {
       run = function()
 				vim.fn["mkdp#util#install"]()
 			end,
-      -- ft = {"markdown"},
       config = function()
         vim.g.mkdp_auto_start = 0
         vim.g.mkdp_auto_close = 1
       end,
     }
 
-    use {
-      "junegunn/fzf",
-        run = function()
-          vim.fn['fzf#install']()
-        end,
-    }
-
     use {"junegunn/fzf.vim", requires = {"junegunn/fzf"},}
+    use {"~/.fzf"}
+    -- use {
+    --   "junegunn/fzf",
+    --     run = function()
+    --       vim.fn['fzf#install']()
+    --     end,
+    -- }
+
+    use {"michaelb/sniprun", run = 'bash ./install.sh'}
+
 
     use {
       "norcalli/nvim-colorizer.lua",
@@ -405,7 +407,13 @@ require("packer").startup {
           require("colorizer").setup(
           {"*"},
           {
-            RGB = false,
+            RGB = true,  -- #RGB hex codes
+            RRGGBB = true, -- #RRGGBB hex codes
+            RRGGBBAA = true, -- #RRGGBBAA hex codes
+            rgb_fn = true, -- CSS rgb() and rgba() functions
+            hsl_fn = true, -- CSS hsl() and hsla() functions
+            css = true, -- enable all css features
+            css_fn = true, -- enable all css *functions*
             mode = "foreground"
           })
         end,

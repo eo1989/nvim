@@ -34,7 +34,7 @@
 -- g.markdown_fenced_languages = {"bash=sh", "json", "python", "lua", "sh"}
 -- vim.g.win_blend = 0
 vim.cmd("syntax enable")
-vim.cmd("filetype plugin indent on")
+-- vim.cmd("filetype plugin indent on")
 
 vim.g.open_command = vim.loop.os_uname() == "Darwin" and "open"
 
@@ -45,6 +45,8 @@ vim.g.vim_dir = vim.g.dotfiles .. "/.config/nvim"
 
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
+
+-- runtime+=
 
 require"e0.globals"
 require'e0.settings'

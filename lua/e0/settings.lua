@@ -36,6 +36,10 @@ vim.opt.scrolloff = 5
 vim.opt.guifont = "Fira Code Nerd Font:h14"
 vim.o.updatetime = 1000
 -- vim.g.lsp_settings_servers_dir = fn.stdpath("cache") .. "/lspconfig"
+vim.cmd('set iskeyword+=-')
+vim.cmd('set whichwrap+=<,>,[,],h,l')
+vim.wo.relativenumber = true
+vim.wo.number = true
 -----------------------------------------------------------------------------//
 -- Message output on vim actions {{{1
 -----------------------------------------------------------------------------//
