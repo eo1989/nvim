@@ -14,7 +14,6 @@ local check_back_space = function()
   end
 end
 
-local call = vim.api.nvim_call_function
 
 --- Use (s-)tab to:
 --- move to prev/next item in completion menuone
@@ -68,8 +67,8 @@ return function()
   local inoremap = e0.inoremap
   local opts = { expr = true, silent = true }
 
-  inoremap("<C-Space>", "compe#complete()", opts)
-  inoremap("<C-e>", "compe#close('<C-e>')", opts)
+  inoremap("<C-e>", "compe#complete()", opts)
+  -- inoremap("<C-e>", "compe#close('<C-e>')", opts)
 
   imap("<Tab>", "v:lua.__tab_complete()", opts)
   smap("<Tab>", "v:lua.__tab_complete()", opts)
@@ -79,9 +78,10 @@ return function()
 
   inoremap("<C-f>", "compe#scroll({ 'delta': +4 })", opts)
   inoremap("<C-d>", "compe#scroll({ 'delta': -4 })", opts)
-	
-	require("nvim-autopairs.completion.compe").setup{
+
+
+  require("nvim-autopairs.completion.compe").setup{
 		map_cr = true, -- map <CR> on insert mode
-		map_complete = true, -- it will auto insert '(' after select function or method item
+		map_complete = false, -- it will auto insert '(' after select function or method item
 	}
 end

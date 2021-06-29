@@ -20,7 +20,7 @@ return function()
   }
 
   -- require("e0.highlights").set_hl("LspSagaLightbulb", {guifg = "NONE", guibg = "NONE"})
-
+  e0.nmap("<C-g", "<cmd>lua require('lspsaga.preview_definition').preview_definition()<CR>")
   e0.vnoremap("<leader>ca", ":<c-u>lua require('lspsaga.codeaction').range_code_action()<CR>")
   e0.inoremap("<c-k>", "<cmd>lua require('lspsaga.signaturehelp').signature_help()<CR>")
   -- e0.nnoremap("<c-k>", "<cmd>lua require('lspsaga.signaturehelp').signature_help()<CR>")

@@ -10,7 +10,7 @@ return function()
       -- ignore_install = {"verilog"}
     },
     incremental_selection = {
-      enable = true,
+      enable = false,
       keymaps = {
         -- mappings for incremental selection (visual mappings)
         init_selection = "<leader>v", -- maps in normal mode to init the node/scope selection
@@ -57,7 +57,7 @@ return function()
       }
     },
     textsubjects = {
-      enable = true,
+      enable = false,
       keymaps = {
         ["<CR>"] = "textsubjects-smart"
       }

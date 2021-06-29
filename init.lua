@@ -10,7 +10,7 @@
 
 --[[ High level overiew
 
-./lua/eo/*.lua  (sourced using `require`)
+./lua/e0/*.lua  (sourced using `require`)
   The core module contains all the files related to personal setup and
   configuration.
   This might include plugin specification, options, commands,
@@ -50,25 +50,16 @@ vim.g.maplocalleader = ","
 
 require"e0.globals"
 require'e0.settings'
-require"e0.highlights"
-require'e0.mappings'
 require"e0.statusline"
+require'e0.mappings'
 require"e0.plugins"
+-- require"e0.highlights"
 require"e0.numbers"
 require"e0.quickfix"
 require'e0.autocmd'
 
 
 
-
-
--- require("e0.globals")
--- require('eo.mappings')
--- require('eo.settings')
--- require("plugins")
--- require('config')
--- require('statusline')
--- require('lualine')
 
 -- dofile('${HOME}/.config/nvim/lua/profiler.lua')
 -- autocmd('start_screen', [[VimEnter * ++once lua require('start').start()]], true)

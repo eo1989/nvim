@@ -26,7 +26,7 @@ end
 
 -- cfilter plugin allows filter down an existing quickfix list
 vim.cmd "packadd! cfilter"
--- vim.cmd "packadd! Packer.nvim"
+vim.cmd "packadd! nvim-compe"
 
 e0.augroup("PackerSetupInit", {
     {
@@ -44,18 +44,6 @@ e0.augroup("PackerSetupInit", {
 e0.nnoremap("<leader>ps", [[<Cmd>PackerSync<CR>]])
 e0.nnoremap("<leader>pc", [[<Cmd>PackerClean<CR>]])
 
--- local function dev(path)
---   return os.getenv "HOME".."/dev/"..path
--- end
-
--- local function developing()
---   return vim.env.DEVELOPING ~= nil
--- end
-
--- local function not_developing()
---   return not vim.env.DEVELOPING
--- end
-
 ---Require a plugin config
 ---@param name string
 ---@return function
@@ -68,6 +56,7 @@ end
   passed to setup or config etc. cannot reference aliased function
   or local variables
 --]]
+
 require("packer").startup {
   function(use)
     use "wbthomason/packer.nvim"
@@ -105,7 +94,7 @@ require("packer").startup {
 
     use {
       "RRethy/vim-illuminate",
-      cmd = ":IlluminationEnable<cr>",
+      -- cmd = ":IlluminationEnable<cr>",
       config = function()
         vim.g.Illuminate_ftblacklist = {'NvimTree'}
       end,
@@ -180,8 +169,8 @@ require("packer").startup {
 
 			use {
 				"kyazdani42/nvim-tree.lua",
-				config =  conf "nvim-tre3"
-				-- requires = "nvim-web-devicons"
+				config =  conf "nvim-tre3",
+				requires = "nvim-web-devicons"
 			}
 
     use "pechorin/any-jump.vim"
@@ -238,7 +227,6 @@ require("packer").startup {
       }
   use {
       "neovim/nvim-lspconfig",
-			-- event = "BufReadPre",
       config = conf "lspconfigg",
       requires = {
 				{
@@ -310,18 +298,9 @@ require("packer").startup {
       }
 
 
-    use {
-        "folke/todo-comments.nvim"
-          -- requires = "plenary.nvim",
-          -- config = function()
-            -- require("todo-comments").setup()
-          -- end,
-				}
-		-- use {"hrsh7th/vim-vsnip-integ"}
+    use {"folke/todo-comments.nvim"}
 
     use {"kevinhwang91/nvim-bqf"}
-        -- config = conf "bQf"
-
 
     use {
       "arecarn/vim-fold-cycle",
@@ -341,7 +320,6 @@ require("packer").startup {
 				-- end,
 			}
 
-    -- NOTE: marks are currently broken in neovim i.e. deleted marks are resurrected on restarting nvim
     use {
       "mbbill/undotree",
       cmd = "UndotreeToggle",
@@ -388,7 +366,7 @@ require("packer").startup {
       end,
     }
 
-    use {"junegunn/fzf.vim", requires = {"junegunn/fzf"},}
+    use {"junegunn/fzf.vim"}
     use {"~/.fzf"}
     -- use {
     --   "junegunn/fzf",
@@ -435,15 +413,6 @@ require("packer").startup {
 
   use {"kassio/neoterm"}
 
-   -- use {
-   --    "tpope/vim-abolish",
-   --    config = function()
-   --      local opts = {silent = false}
-   --      e0.nnoremap("<localleader>[", ":S/<C-R><C-W>//<LEFT>", opts)
-   --      e0.nnoremap("<localleader>]", ":%S/<C-r><C-w>//c<left><left>", opts)
-   --      e0.vnoremap("<localleader>[", [["zy:%S/<C-r><C-o>"//c<left><left>]], opts)
-   --    end
-   --  }
 
     use "NTBBloodbath/doom-one.vim"
     use "monsonjeremy/onedark.nvim"
@@ -455,8 +424,8 @@ require("packer").startup {
 
     use {
       "nvim-treesitter/nvim-treesitter",
-        config = conf "threesitter",
-        run = ":TSUpdate"
+        config = conf "threesitter"
+       -- run = ":TSUpdate"
       }
 
     use {
@@ -559,7 +528,6 @@ require("packer").startup {
     use {
       "chaoren/vim-wordmotion",
       config = function()
-        -- Restore Vim's special case behavior with dw and cw:
         e0.nmap("dw", "de")
         e0.nmap("cw", "ce")
         e0.nmap("dW", "dE")
@@ -667,7 +635,7 @@ require("packer").startup {
     },
     profile = {
       enable = true,
-      threshold = 0
+      threshold = 1
     }
   }
 }
