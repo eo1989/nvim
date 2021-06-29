@@ -367,13 +367,13 @@ require("packer").startup {
     }
 
     use {"junegunn/fzf.vim"}
-    use {"~/.fzf"}
-    -- use {
-    --   "junegunn/fzf",
-    --     run = function()
-    --       vim.fn['fzf#install']()
-    --     end,
-    -- }
+    -- use {"~/.fzf/bin/fzf"}
+    use {
+      "junegunn/fzf",
+        run = function()
+          vim.fn['fzf#install']()
+        end,
+    }
 
     use {"michaelb/sniprun", run = 'bash ./install.sh'}
 

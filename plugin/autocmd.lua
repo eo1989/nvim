@@ -193,28 +193,33 @@ e0.augroup(
 )
 
 local column_exclude = {"gitcommit"}
-local column_clear = {"startify", "vimwiki", "vim-plug", "help", "fugitive", "mail"}
+local column_clear = {"startify", "vimwiki", "vim-plug", "help", "fugitive", "mail", "NeogitStatus",}
 
 --- Set or unset the color column depending on the filetype of the buffer and its eligibility
----@param leaving boolean?
+---@param leaving boolean? indicates if the function was called on window leave
 local function check_color_column(leaving)
   if contains(column_exclude, vim.bo.filetype) then
     return
   end
 
   local not_eligible =
-    not vim.bo.modifiable or vim.wo.pvw or not vim.bo.buflisted or vim.bo.bt ~= ""
+    not vim.bo.modifiable or vim.wo.previewwindow or vim.bo.buflisted ~= "" or not vim.bo.buflisted
 
-  if contains(column_clear, vim.bo.filetype) or not_eligible then
+	local small_window = api.nvim_win_get_width(0) <= vim.bo.textwidth + 1
+	local is_last_win = #api.nvim_list_wins() == 1
+
+
+  if contains(column_clear, vim.bo.filetype)
+		or not_eligible 
+		or (leaving and not is_last_win)
+		or small_window
+	then
     vim.wo.colorcolumn = ""
     return
   end
-  if api.nvim_win_get_width(0) <= 120 or leaving then
-    -- only reset this value when it doesn't already exist
-    vim.wo.colorcolumn = ""
-  elseif vim.wo.colorcolumn == "" then
-    vim.cmd("setlocal colorcolumn=+1")
-  end
+	if vim.wo.colorcolumn == "" then
+		vim.wo.colorcolumn = "+1"
+	end
 end
 
 e0.augroup(
@@ -244,6 +249,16 @@ e0.augroup(
     --[[ autocmd BufWritePost $DOTFILES/**/nvim/configs/*.vim,$MYVIMRC ++nested
           \  luafile $MYVIMRC | redraw | silent doautocmd ColorScheme |
           \  call utils#message("sourced ".fnamemodify($MYVIMRC, ":t"), "Title") ]]
+		{
+			events = {"BufWritePost"},
+			targets = {"$DOTFILES/**/nvim/plugin/*.{lua,vim}", "$MYVIMRC"},
+			modifiers = {"++nested"},
+			command = function()
+				local ok, msg = pcall(vim.cmd, "source $MYVIMRC | redraw | silent doautocmd ColorScheme")
+				msg = ok and "sourced " .. vim.fn.fnamemodify(vim.env.MYVIMRC, ":t") or msg
+				vim.notify(msg)
+			end,
+		},
     {
       events = {"FocusLost"},
       targets = {"*"},
@@ -336,7 +351,7 @@ e0.augroup(
       command = function()
         local pos = fn.line('\'"')
         if vim.bo.ft ~= "gitcommit" and pos > 0 and pos <= fn.line("$") then
-          vim.cmd('keepjumps normal g`"')
+          vim.cmd 'keepjumps normal g`"'
         end
       end
     },
@@ -351,7 +366,7 @@ e0.augroup(
       targets = {"*"},
       command = function()
         if can_save() then
-          vim.cmd("silent! update")
+          vim.cmd "silent! update"
         end
       end
     },

@@ -52,11 +52,12 @@ return function()
       path       = true,
       buffer     = {{ kind = " " }, { priority = 1 }},
       -- snip       = { kind = " " },
-      vsnip      = {{ kind = " " }, { priority = 5 }},
+      vsnip      = {{ kind = " " }, { priority = 95 }},
       nvim_lsp   = { priority = 101 },
       nvim_lua   = {{ priority = 99 }, { filetypes = "lua" }},
       tabnine    = false, -- {priority = 1200}
       treesitter = false,
+      omni       = true,
       spell      = { kind = "ﲃ", filetypes = { "markdown" }},
       emoji      = { kind = "ﲃ", filetypes = { "markdown" }}
     }
@@ -82,6 +83,6 @@ return function()
 
   require("nvim-autopairs.completion.compe").setup{
 		map_cr = true, -- map <CR> on insert mode
-		map_complete = false, -- it will auto insert '(' after select function or method item
+		map_complete = true, -- it will auto insert '(' after select function or method item
 	}
 end

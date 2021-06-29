@@ -36,10 +36,10 @@
 vim.cmd("syntax enable")
 -- vim.cmd("filetype plugin indent on")
 
-vim.g.open_command = vim.loop.os_uname() == "Darwin" and "open"
+vim.g.os = vim.loop.os_uname().sysname 
+vim.g.open_command = vim.g.os == "Darwin" and "open"
 
--- or "xdg-open"
-vim.g.dotfiles = vim.env.DOTFILES or "~"
+vim.g.dotfiles = vim.env.DOTFILES or vim.fn.expand "~/.dotfiles/"
 vim.g.vim_dir = vim.g.dotfiles .. "/.config/nvim"
 
 
@@ -50,14 +50,17 @@ vim.g.maplocalleader = ","
 
 require"e0.globals"
 require'e0.settings'
+require"e0.highlights"
 require"e0.statusline"
-require'e0.mappings'
+-- require'e0.mappings'
 require"e0.plugins"
--- require"e0.highlights"
-require"e0.numbers"
-require"e0.quickfix"
-require'e0.autocmd'
-
+-- require"e0.numbers"
+-- require"e0.quickfix"
+-- require'e0.autocmd'
+vim.cmd "luafile ~/.config/nvim/plugin/numbers.lua"
+vim.cmd "luafile ~/.config/nvim/plugin/autocmd.lua"
+vim.cmd "luafile ~/.config/nvim/plugin/folds.lua"
+vim.cmd "luafile ~/.config/nvim/plugin/quickfix.lua"
 
 
 

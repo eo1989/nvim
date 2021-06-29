@@ -120,12 +120,13 @@ vim.opt.formatoptions = {
 -----------------------------------------------------------------------------//
 vim.opt.foldtext = "v:lua.folds()"
 vim.opt.foldopen = vim.opt.foldopen + "search"
-vim.opt.foldlevelstart = 10
-vim.opt.foldmethod = "indent"
+vim.opt.foldlevelstart = 3
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldmethod = "expr"
 -----------------------------------------------------------------------------//
 -- Quickfix {{{1
 -----------------------------------------------------------------------------//
-vim.o.quickfixtextfunc = "v:lua.e0.qftf"
+vim.o.quickfixtextfunc = "{i -> v:lua.e0.qftf(i)}"
 -----------------------------------------------------------------------------//
 -- Grepprg {{{1
 -----------------------------------------------------------------------------//
