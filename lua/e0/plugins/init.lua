@@ -91,6 +91,8 @@ require("packer").startup {
     }
     use {"ahmedkhalf/jupyter-nvim"}
     use {"bfredl/nvim-ipy"}
+    use {"hkupty/iron.nvim"}
+    use {"metakirby5/codi.vim"}
 
     use {
       "RRethy/vim-illuminate",
@@ -266,12 +268,12 @@ require("packer").startup {
 
     use "ray-x/lsp_signature.nvim"
 
-    use {"hrsh7th/nvim-compe", module = "compe", config = conf "comp3"}
+    use {"hrsh7th/nvim-compe", module = "compe", config = conf "comp3", event = "InsertEnter"}
 
 
     use {
       "hrsh7th/vim-vsnip",
-      -- event = "InsertEnter",
+      event = "InsertEnter",
       requires = {"rafamadriz/friendly-snippets", "hrsh7th/nvim-compe"},
       config = function()
         vim.g.vsnip_snippet_dir = vim.g.vim_dir .. "/snippets/textmate"
@@ -291,7 +293,7 @@ require("packer").startup {
         require("goto-preview").setup {
           default_mappings = true,
 					post_open_hook = function(buffer, _)
-						e0.nnoremap("q", "<Cmd>q<CR>", {buffer = buffer, nowait = true})
+						e0.nnoremap("q", "<cmd>q<CR>", {buffer = buffer, nowait = true})
 					end,
         }
       end,
@@ -313,12 +315,7 @@ require("packer").startup {
 
     use "psliwka/vim-smoothie"
 
-    use {
-      "itchyny/vim-highlighturl"
-				-- config = function()
-				-- 	vim.g.highlighturl_guifg = require("e0.highlights").get_hl("Keyword", "fg")
-				-- end,
-			}
+    use {"itchyny/vim-highlighturl"}
 
     use {
       "mbbill/undotree",
@@ -367,12 +364,9 @@ require("packer").startup {
     }
 
     use {"junegunn/fzf.vim"}
-    -- use {"~/.fzf/bin/fzf"}
     use {
       "junegunn/fzf",
-        run = function()
-          vim.fn['fzf#install']()
-        end,
+        run = './install -all'
     }
 
     use {"michaelb/sniprun", run = 'bash ./install.sh'}
@@ -385,13 +379,13 @@ require("packer").startup {
           require("colorizer").setup(
           {"*"},
           {
-            RGB = true,  -- #RGB hex codes
-            RRGGBB = true, -- #RRGGBB hex codes
-            RRGGBBAA = true, -- #RRGGBBAA hex codes
-            rgb_fn = true, -- CSS rgb() and rgba() functions
-            hsl_fn = true, -- CSS hsl() and hsla() functions
-            css = true, -- enable all css features
-            css_fn = true, -- enable all css *functions*
+            RGB = true,          -- #RGB hex codes
+            RRGGBB = true,       -- #RRGGBB hex codes
+            RRGGBBAA = true,     -- #RRGGBBAA hex codes
+            rgb_fn = true,       -- CSS rgb() and rgba() functions
+            hsl_fn = true,       -- CSS hsl() and hsla() functions
+            css = true,          -- enable all css features
+            css_fn = true,       -- enable all css *functions*
             mode = "foreground"
           })
         end,
@@ -424,8 +418,8 @@ require("packer").startup {
 
     use {
       "nvim-treesitter/nvim-treesitter",
+        run = ":TSUpdate",
         config = conf "threesitter"
-       -- run = ":TSUpdate"
       }
 
     use {
@@ -448,7 +442,7 @@ require("packer").startup {
 
     use {"p00f/nvim-ts-rainbow", requires = "nvim-treesitter"}
 
-    use {"RRethy/nvim-treesitter-textsubjects", requires = "nvim-treesitter"}
+    use {"RRethy/nvim-treesitter-textsubjects"}
 
     use {
       "junegunn/vim-easy-align",
